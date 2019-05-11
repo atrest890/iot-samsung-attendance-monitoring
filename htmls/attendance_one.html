@@ -4,11 +4,43 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel=stylesheet href="main.css">
+    <link rel=stylesheet href="../css/main.css">
 
     <title>Калинин Филипп Анатолиевич 123-4</title>
   </head>
   <body>
+
+   <div class="container">
+      <ul class="nav nav-tabs">
+          <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Факультет<span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">РТФ</a></li>
+                <li><a href="#">РКФ</a></li>
+                <li><a href="#">ФЭТ</a></li>
+                <li><a href="#">ФСУ</a></li>
+                <li><a href="#">ФВС</a></li>
+                <li><a href="#">ГФ</a></li>
+                <li><a href="#">ЭФ</a></li>
+                <li><a href="#">ФИТ</a></li>
+                <li><a href="#">ЮФ</a></li>
+                <li><a href="fb.html">ФБ</a></li>                        
+              </ul>
+            </li>
+    
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Корпус<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="ulk.html">УЛК</a></li>
+            <li><a href="#">ФЭТ</a></li>
+            <li><a href="#">РК</a></li>
+            <li><a href="#">ГК</a></li>
+            <li><a href="#">МК</a></li>                        
+          </ul>
+        </li>
+      </ul>
+    </div>
+
     <h1>Калинин Филипп Анатолиевич 123-4</h1>
     <table class = "table table-bordered">
         
@@ -30,7 +62,14 @@
               <td>БСБД</td>
               <td>808</td>
               <td>УЛК</td>
-              <td>Был</td>
+              <td>
+                     <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+                           <option selected>Выберите...</option>
+                           <option selected>Был</option>
+                           <option value="1">Не был</option>
+                           <option value="2">Не был (ув. пр.)</option>
+                     </select>
+                </td>
            </tr>
         </tbody>
          
