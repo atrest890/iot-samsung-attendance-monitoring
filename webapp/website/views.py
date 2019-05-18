@@ -12,6 +12,21 @@ def faculties(request, faculty):
         return render(request, 'website/fb.html')
     return HttpResponseNotFound('<h1>Другие факультеты не существуют</h1>')
 
+
+def groups(request, **kwargs):
+    if kwargs['faculty'] == 'fb':
+        if kwargs['group'] == '123-4':
+            return render(request, 'website/123-4.html')
+        return HttpResponseNotFound('<h1>Такой группы не существует</h1>')
+
+def students(request, **kwargs):
+    if kwargs['faculty'] == 'fb':
+        if kwargs['group'] == '123-4':
+            if kwargs['student'] == 'kalinin':
+                return render(request, 'website/attendance_one.html')
+    return HttpResponseNotFound('<h1>Такого студента не существует</h1>')
+
+
 def buildings(request, building):
     if building == 'ulk':
         return render(request, 'website/ulk.html')
