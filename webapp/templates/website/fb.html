@@ -1,77 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title></title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/static/css/bootstrap.min.css">
-  <link rel=stylesheet href="../static/css/main.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/static/js/bootstrap.min.js"></script>
-
-  <script> 
-      $(function(){
-        $("#header").load("header.html");
-      });
-      </script> -->
-
+    <title></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/3rd-party/bootstrap-3.4.0.min.css">
     <link rel=stylesheet href="/static/css/main.css">
 </head>
+
 <body>
-
- <div id="header"></div>
-
-
-<div class = "panel panel-default">
-    <div class = "panel-heading">
-        1 курс
-    </div>
-
-    <div class = "panel-body">
-        <a href="fb/groups/123-4">123-4</a>
-    </div>
-</div>
-
-<div class = "panel panel-default">
-        <div class = "panel-heading">
-            2 курс
-        </div>
-    
-        <div class = "panel-body">
-            737-1
-        </div>
-</div>
-
-<div class = "panel panel-default">
-        <div class = "panel-heading">
-            3 курс
-        </div>
-    
-        <div class = "panel-body">
-            737-1
-        </div>
-    </div>
-
+    <div id="header"></div>
+    {% for course in courses %}    
     <div class = "panel panel-default">
             <div class = "panel-heading">
-                4 курс
+                {{course}}
             </div>
         
             <div class = "panel-body">
-                737-1
+            {% for group, url in groups.items %}
+                <a class="group-number" href={{url}}>{{group}}</a>
+            {% endfor %}
             </div>
-        </div> 
-    
-    <div class = "panel panel-default">
-            <div class = "panel-heading">
-                5 курс
-            </div>
-        
-            <div class = "panel-body">
-                737-1
-            </div>
-        </div>
+    </div>
+    {% endfor %}
 
 
     <script src="/static/3rd-party/jquery-3.4.0.min.js"></script>

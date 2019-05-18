@@ -100,3 +100,7 @@ h1 {
 .dropdown-menu > li:nth-child(even) {
     background: #ffffff;
 }
+
+.group-number {
+    padding-right: 2em;
+}

@@ -77,12 +77,32 @@
                                 <td class="first">7</td>
                               </tr>
                             
+                              {% for aud, lessons in auditoriums.items %}
                               <tr>
+                                  <td>{{aud}}</td>
+                                  {% for lesson in lessons %}
+                                      {% if lesson == None%}
+                                          <td> </td>
+                                      {% else %}
+                                          <td><a href={{lesson.url}}>{{lesson.name}}</a></td>
+                                      {% endif %}
+                                  {% endfor %}
+                                  <!-- <td><a href="ulk/auditoriums/403/date/2019.05.05/index/1">ТИВ</a></td>
+                                  <td></td>
+                                  <td>МА</td> -->
+                              </tr>
+                              {% endfor %}  
+
+
+                              <!-- <tr>
                                   <td>403</td>
                                   <td><a href="ulk/auditoriums/403/date/2019.05.05/index/1">ТИВ</a></td>
                                   <td></td>
                                   <td>МА</td>
-                              </tr>
+                              </tr> -->
+
+                              
+
                 </thead>
         </table>
       
