@@ -1,27 +1,45 @@
 from django.shortcuts import render
 from django.http import HttpResponseNotFound
+from website.models import *
+import cyrtranslit
 
 def index(request): 
     return render(request, 'website/index.html')
 
 
 def header(request):
-    faculties = {"РТФ" : "#", 
-                 "РКФ" : "#", 
-                 "ФЭТ" : "#", 
-                 "ФСУ" : "#", 
-                 "ФВС" : "#", 
-                 "ГФ" : "#", 
-                 "ЭФ" : "#", 
-                 "ФИТ" : "#", 
-                 "ЮФ" : "#", 
-                 "ФБ" : "/faculties/fb"}
+    # faculties = {"РТФ" : "#", 
+    #              "РКФ" : "#", 
+    #              "ФЭТ" : "#", 
+    #              "ФСУ" : "#", 
+    #              "ФВС" : "#", 
+    #              "ГФ" : "#", 
+    #              "ЭФ" : "#", 
+    #              "ФИТ" : "#", 
+    #              "ЮФ" : "#", 
+    #              "ФБ" : "/faculties/fb"}
 
-    buildings = {"УЛК" : "/buildings/ulk", 
-                 "ФЭТ" : "#", 
-                 "РК" : "#", 
-                 "ГК" : "#", 
-                 "МК" : "#"}
+    # buildings = {"УЛК" : "/buildings/ulk", 
+    #              "ФЭТ" : "#", 
+    #              "РК" : "#", 
+    #              "ГК" : "#", 
+    #              "МК" : "#"}
+
+    faculties_obj = Faculty.objects.all()
+
+    faculties = {}
+    for obj in faculties_obj:
+        name = obj.faculty_name
+        latin_name = obj.latin_name
+        faculties[name] = "/faculties/" + labuildingstin_name
+
+    buildings_obj = Building.objects.all()
+
+    buildings = {}
+    for obj in buildings_obj:
+        name = obj.build_name
+        latin_name = obj.latin_name
+        buildings[name] = latin_name
 
     return render(request, 'website/header.html', context = {"faculties" : faculties, "buildings" : buildings})
 
@@ -34,7 +52,9 @@ def faculties(request, faculty):
                    "4 курс", 
                    "5 курс"]
 
-        groups = {"123-4" : "fb/groups/123-4", "124-4" : "fb/groups/125-4", "126-4" : "fb/groups/123-4"}
+        groups = {"123-4" : "fb/groups/123-4", 
+                  "124-4" : "fb/groups/125-4", 
+                  "126-4" : "fb/groups/123-4"}
 
         return render(request, 'website/fb.html', context = {"courses" : courses, "groups" : groups})
     return HttpResponseNotFound('<h1>Другие факультеты не существуют</h1>')

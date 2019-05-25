@@ -13,21 +13,23 @@ class Professor(models.Model):
 
 
 class Building(models.Model):
-    build_name = models.CharField(max_length = 10)
+    build_name = models.CharField(max_length = 10, unique = True)
+    latin_name = models.CharField(max_length = 10, unique = True, default = "")
 
 
 class Auditorium(models.Model):
     aud_number = models.CharField(max_length = 10)
     building = models.ForeignKey(Building, on_delete = models.CASCADE)
 
-    
-
-class Group(models.Model):
-    number = models.CharField(max_length = 10)
-    group_number = models.CharField(max_length = 10)
 
 class Faculty(models.Model):
-    faculty_name = models.CharField(max_length = 5)
+    faculty_name = models.CharField(max_length = 5, unique = True)
+    latin_name = models.CharField(max_length = 5, unique = True, default = "")
+
+
+class Group(models.Model):
+    group_number = models.CharField(max_length = 10, unique = True)
+    faculty = models.ForeignKey(Faculty, on_delete = models.CASCADE)
 
 
 class Lesson(models.Model):
