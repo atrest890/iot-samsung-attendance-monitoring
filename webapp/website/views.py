@@ -31,7 +31,7 @@ def header(request):
     for obj in faculties_obj:
         name = obj.faculty_name
         latin_name = obj.latin_name
-        faculties[name] = "/faculties/" + labuildingstin_name
+        faculties[name] = "/faculties/" + latin_name
 
     buildings_obj = Building.objects.all()
 
@@ -39,7 +39,7 @@ def header(request):
     for obj in buildings_obj:
         name = obj.build_name
         latin_name = obj.latin_name
-        buildings[name] = latin_name
+        buildings[name] = "/buildings/" + latin_name
 
     return render(request, 'website/header.html', context = {"faculties" : faculties, "buildings" : buildings})
 

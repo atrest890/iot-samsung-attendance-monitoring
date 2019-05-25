@@ -30,6 +30,7 @@ class Faculty(models.Model):
 class Group(models.Model):
     group_number = models.CharField(max_length = 10, unique = True)
     faculty = models.ForeignKey(Faculty, on_delete = models.CASCADE)
+    course = models.IntegerField(default = 0)
 
 
 class Lesson(models.Model):
