@@ -8,23 +8,6 @@ def index(request):
 
 
 def header(request):
-    # faculties = {"РТФ" : "#", 
-    #              "РКФ" : "#", 
-    #              "ФЭТ" : "#", 
-    #              "ФСУ" : "#", 
-    #              "ФВС" : "#", 
-    #              "ГФ" : "#", 
-    #              "ЭФ" : "#", 
-    #              "ФИТ" : "#", 
-    #              "ЮФ" : "#", 
-    #              "ФБ" : "/faculties/fb"}
-
-    # buildings = {"УЛК" : "/buildings/ulk", 
-    #              "ФЭТ" : "#", 
-    #              "РК" : "#", 
-    #              "ГК" : "#", 
-    #              "МК" : "#"}
-
     faculties_obj = Faculty.objects.all()
 
     faculties = {}
@@ -45,19 +28,20 @@ def header(request):
 
 
 def faculties(request, faculty):
-    if faculty == 'fb':
-        courses = ["1 курс", 
-                   "2 курс", 
-                   "3 курс", 
-                   "4 курс", 
-                   "5 курс"]
+    faculty_obj = Faculty.objects.get(latin_name = faculty)
+    if not faculty_obj:
+        return HttpResponseNotFound('<h1>Такого факультета не существует</h1>')
 
-        groups = {"123-4" : "fb/groups/123-4", 
-                  "124-4" : "fb/groups/125-4", 
-                  "126-4" : "fb/groups/123-4"}
+    groups_obj = Group.objects.filter(faculty_id = faculty_obj.id)
+    all_groups = {}
+    for group in groups_obj:
+        course = group.course
+        group_number = group.group_number
+        all_groups.setdefault(course, [])
+        all_groups[course].append(group_number)
 
-        return render(request, 'website/fb.html', context = {"courses" : courses, "groups" : groups})
-    return HttpResponseNotFound('<h1>Другие факультеты не существуют</h1>')
+
+    return render(request, 'website/faculty.html', context = { "all_groups" : all_groups })
 
 
 def groups(request, **kwargs):
@@ -95,7 +79,7 @@ def buildings(request, building):
     return HttpResponseNotFound('<h1>Такого корпуса не существует</h1>')
 
 
-def lessons(request, **kwargs): #buildings/<str:building>/auditoriums/<str:auditorium>/date/<str:date>/index/<int:index>'
+def lessons(request, **kwargs):
     if kwargs['building'] == 'ulk':
         if kwargs['auditorium'] == '403':
             if kwargs['date'] == '2019.05.05':

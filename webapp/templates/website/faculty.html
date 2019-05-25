@@ -10,14 +10,15 @@
 
 <body>
     <div id="header"></div>
-    {% for course in courses %}    
+
+    {% for course, groups in all_groups.items %}    
     <div class = "panel panel-default">
             <div class = "panel-heading">
-                {{course}}
+                {{course}} курс
             </div>
         
             <div class = "panel-body">
-            {% for group, url in groups.items %}
+            {% for group in groups %}
                 <a class="group-number" href={{url}}>{{group}}</a>
             {% endfor %}
             </div>
