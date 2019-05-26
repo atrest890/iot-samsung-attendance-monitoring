@@ -34,21 +34,31 @@ def faculties(request, faculty):
 
     groups_obj = Group.objects.filter(faculty_id = faculty_obj.id)
     all_groups = {}
+    urls = {}
     for group in groups_obj:
         course = group.course
         group_number = group.group_number
         all_groups.setdefault(course, [])
-        all_groups[course].append(group_number)
-
-
+        urls[group_number] = "/faculties/" + faculty + "/groups/" + group_number
+        all_groups[course].append({"number" : group_number, "url" : urls[group_number]})
+            
+    print(urls)
     return render(request, 'website/faculty.html', context = { "all_groups" : all_groups })
 
 
 def groups(request, **kwargs):
-    if kwargs['faculty'] == 'fb':
-        if kwargs['group'] == '123-4':
-            return render(request, 'website/123-4.html')
+    # if kwargs['faculty'] == 'fb':
+    #     if kwargs['group'] == '123-4':
+    #         return render(request, 'website/123-4.html')
+    #     return HttpResponseNotFound('<h1>Такой группы не существует</h1>')
+
+    faculty_obj = Faculty.objects.get(latin_name = kwargs['faculty'])
+    groups_obj = Group.objects.get(group_number = kwargs['group'])
+
+    if not faculty_obj and not groups_obj:
         return HttpResponseNotFound('<h1>Такой группы не существует</h1>')
+
+    return render(request, 'website/group.html')
 
 
 def students(request, **kwargs):

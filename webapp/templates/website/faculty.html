@@ -11,6 +11,8 @@
 <body>
     <div id="header"></div>
 
+    <!-- TODO: ДОБАВИТЬ НАДПИСЬ ФАКУЛЬТЕТА -->
+
     {% for course, groups in all_groups.items %}    
     <div class = "panel panel-default">
             <div class = "panel-heading">
@@ -19,7 +21,7 @@
         
             <div class = "panel-body">
             {% for group in groups %}
-                <a class="group-number" href={{url}}>{{group}}</a>
+                <a class="group-number" href={{group.url}}>{{group.number}}</a>
             {% endfor %}
             </div>
     </div>
