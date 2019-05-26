@@ -23,16 +23,6 @@
             </thead>
             
             <tbody>
-                <!-- <tr>
-                    <td>1</td>
-                    <td><a href="123-4/students/kalinin">Калинин Филипп Анатолиевич</a></td>
-                </tr>
-
-                <tr>
-                    <td>2</td>
-                    <td><a href="#">Котенкин Александр Петрович</a></td>
-                </tr> -->
-                
                 {% for  student, url in students.items %}
                     <tr>
                         <td>{{forloop.counter}}</td>

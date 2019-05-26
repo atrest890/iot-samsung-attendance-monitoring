@@ -105,11 +105,13 @@ h1 {
     padding-right: 2em;
 }
 
-
+.container {
+  width: 100%;
+}
 
 .carousel-inner > .item > img, .carousel-inner > .item > a > img {
   display: block;
-  height: 400px;
+  height: 678px;
   min-width: 100%;
   width: 100%;
   max-width: 100%;
