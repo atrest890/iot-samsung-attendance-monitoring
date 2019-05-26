@@ -1,4 +1,5 @@
 from website.models import *
+import re, random
 
 current_year = 9
 def getCourse(group):
@@ -35,6 +36,9 @@ builds = { "УЛК" : "ulk",
            "МК"  : "mk" }
 
 
+f = open("names.txt", 'r')
+students = f.readlines()
+
 
 for fac, groups in facs.items():
     f, created = Faculty.objects.get_or_create(faculty_name = fac, latin_name = latin_facs[fac])
@@ -46,5 +50,23 @@ for fac, groups in facs.items():
 for name, latin in builds.items():
     b, created = Building.objects.get_or_create(build_name = name, latin_name = latin)
     print(name, "created" if created  else "existed")
+
+
+groups_obj = Group.objects.all()
+groups = []
+for gr in groups_obj:
+        groups.append(gr.id)
+
+
+for st in students:
+        creds = re.split(" ", st)
+
+        s, created = Student.objects.get_or_create(surname = creds[0], 
+                                          name = creds[1], 
+                                          patronymic = creds[2],
+                                          group_id = random.choice(groups))
+
+
+        print("\t", st, "created" if created  else "existed")
 
 

@@ -1,16 +1,5 @@
 from django.db import models
  
-class Student(models.Model):
-    surname = models.CharField(max_length = 50)
-    name = models.CharField(max_length = 50)
-    patronymic = models.CharField(max_length = 50)
-
-
-class Professor(models.Model):
-    surname = models.CharField(max_length = 50)
-    name = models.CharField(max_length = 50)
-    patronymic = models.CharField(max_length = 50)
-
 
 class Building(models.Model):
     build_name = models.CharField(max_length = 10, unique = True)
@@ -31,6 +20,21 @@ class Group(models.Model):
     group_number = models.CharField(max_length = 10, unique = True)
     faculty = models.ForeignKey(Faculty, on_delete = models.CASCADE)
     course = models.IntegerField(default = 0)
+
+
+ 
+class Student(models.Model):
+    surname = models.CharField(max_length = 50)
+    name = models.CharField(max_length = 50)
+    patronymic = models.CharField(max_length = 50)
+    group = models.ForeignKey(Group, on_delete = models.CASCADE, default = "")
+
+
+class Professor(models.Model):
+    surname = models.CharField(max_length = 50)
+    name = models.CharField(max_length = 50)
+    patronymic = models.CharField(max_length = 50)
+
 
 
 class Lesson(models.Model):

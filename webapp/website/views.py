@@ -7,6 +7,7 @@ def index(request):
     return render(request, 'website/index.html')
 
 
+
 def header(request):
     faculties_obj = Faculty.objects.all()
 
@@ -25,6 +26,7 @@ def header(request):
         buildings[name] = "/buildings/" + latin_name
 
     return render(request, 'website/header.html', context = {"faculties" : faculties, "buildings" : buildings})
+
 
 
 def faculties(request, faculty):
@@ -46,27 +48,45 @@ def faculties(request, faculty):
     return render(request, 'website/faculty.html', context = { "all_groups" : all_groups })
 
 
-def groups(request, **kwargs):
-    # if kwargs['faculty'] == 'fb':
-    #     if kwargs['group'] == '123-4':
-    #         return render(request, 'website/123-4.html')
-    #     return HttpResponseNotFound('<h1>Такой группы не существует</h1>')
 
+def groups(request, **kwargs):
     faculty_obj = Faculty.objects.get(latin_name = kwargs['faculty'])
-    groups_obj = Group.objects.get(group_number = kwargs['group'])
+    group = Group.objects.get(group_number = kwargs['group'])
+
+    # TODO: исправить условие
 
     if not faculty_obj and not groups_obj:
         return HttpResponseNotFound('<h1>Такой группы не существует</h1>')
 
-    return render(request, 'website/group.html')
+    students_obj = Student.objects.filter(group = group.id)
+    students = {}
+    index = 0
+
+    for st in students_obj:
+        fio = st.surname + " " + st.name + " " + st.patronymic
+        students[fio] = "/faculties/" + kwargs['faculty'] + "/groups/" + kwargs['group'] + "/students/" + str(st.id)
+
+    return render(request, 'website/group.html', context = { "students" : students })
+
 
 
 def students(request, **kwargs):
-    if kwargs['faculty'] == 'fb':
-        if kwargs['group'] == '123-4':
-            if kwargs['student'] == 'kalinin':
-                return render(request, 'website/attendance_one.html')
-    return HttpResponseNotFound('<h1>Такого студента не существует</h1>')
+    # if kwargs['faculty'] == 'fb':
+    #     if kwargs['group'] == '123-4':
+    #         if kwargs['student'] == 'kalinin':
+    #             return render(request, 'website/attendance_one.html')
+    # return HttpResponseNotFound('<h1>Такого студента не существует</h1>')
+    faculty_obj = Faculty.objects.get(latin_name = kwargs['faculty'])
+    groups_obj = Group.objects.get(group_number = kwargs['group'])
+    students_obj = Student.objects.get(id = kwargs['student_id'])
+
+    # TODO: исправить условие
+
+    if not students_obj:
+        return HttpResponseNotFound('<h1>Такого студента не существует</h1>')
+
+    return render(request, 'website/student.html')
+
 
 
 def buildings(request, building):
