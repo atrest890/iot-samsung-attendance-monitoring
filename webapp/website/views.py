@@ -78,16 +78,39 @@ def students(request, **kwargs):
     # return HttpResponseNotFound('<h1>Такого студента не существует</h1>')
     faculty_obj = Faculty.objects.get(latin_name = kwargs['faculty'])
     groups_obj = Group.objects.get(group_number = kwargs['group'])
-    students_obj = Student.objects.get(id = kwargs['student_id'])
+    student_obj = Student.objects.get(id = kwargs['student_id'])
 
     # TODO: исправить условие
 
-    if not students_obj:
+    if not student_obj:
         return HttpResponseNotFound('<h1>Такого студента не существует</h1>')
 
-    
+    group = Group.objects.get(group_number = kwargs['group'])   
+    gl_obj = Group_Lesson.objects.filter(group_id = group.id)
+    less_obj = []
+    for gl in gl_obj:
+        less_obj.append(Lesson.objects.get(id = gl.lesson_id))
 
-    return render(request, 'website/student.html')
+    lessons = []
+    
+    for l in less_obj:
+        lesson = []
+        for i in range(1, 4, 1):
+            date = l.date
+            lesson.append(date)
+            name = l.lesson_name
+            lesson.append(name)
+            aud = Auditorium.objects.get(id = l.auditorium_id)
+            aud_number = aud.aud_number
+            lesson.append(aud_number)
+            build = Building.objects.get(id = aud.building_id)
+            lesson.append(build.build_name)
+
+        lessons.append(lesson)
+
+    creds = str(student_obj.surname) + " " + str(student_obj.name) + " " + str(student_obj.patronymic) + " " + str(group.group_number)
+
+    return render(request, 'website/student.html', context = {"lessons" : lessons, "creds" : creds})
 
 
 

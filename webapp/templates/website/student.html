@@ -23,7 +23,7 @@
 <body>
     <div id="header"></div>
 
-    <h1>Калинин Филипп Анатолиевич 123-4</h1>
+    <h1>{{creds}}</h1>
     <table class = "table table-bordered">
         <thead>
         <thead class="thead">
@@ -38,8 +38,8 @@
         </thead>
         
         <tbody>
-           <tr>
-              <td scope="row">10.05.2019</td>
+           <!-- <tr> -->
+              <!-- <td scope="row">10.05.2019</td>
               <td>БСБД</td>
               <td>808</td>
               <td>УЛК</td>
@@ -51,7 +51,18 @@
                            <option value="2">Не был (ув. пр.)</option>
                      </select>
                 </td>
-           </tr>
+           </tr> -->
+
+           {% for l in lessons %}
+               <tr>
+                  <td scope="row">{{l.0}}</td>
+                  <td>{{l.1}}</td>
+                  <td>{{l.2}}</td>
+                  <td>{{l.3}}</td>
+                  <td>Был</td>
+              </tr>
+          {% endfor %}
+
         </tbody>
      </table>
 

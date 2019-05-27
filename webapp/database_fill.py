@@ -153,4 +153,11 @@ for gr in groups_obj:
         print("\t", "{0} : {1}".format(gl.group.group_number, gl.lesson.lesson_name), "created" if created else "existed")
 
 
+attendance = Attendance.objects.all()
+st_obj = Student.objects.all()
+
+
+# for i in range(1, 200, 1):
+#         a, created = Attendance.objects.get_or_create(student = random.choice(st_obj), lesson = random.choice(less_obj))
+#         print("\t", a.student.surname, "created" if created else "existed")
       
