@@ -85,6 +85,8 @@ def students(request, **kwargs):
     if not students_obj:
         return HttpResponseNotFound('<h1>Такого студента не существует</h1>')
 
+    
+
     return render(request, 'website/student.html')
 
 

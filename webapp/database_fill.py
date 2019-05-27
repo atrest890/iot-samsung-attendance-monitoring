@@ -1,5 +1,5 @@
 from website.models import *
-import re, random
+import re, random, datetime
 
 current_year = 9
 def getCourse(group):
@@ -36,8 +36,44 @@ builds = { "УЛК" : "ulk",
            "МК"  : "mk" }
 
 
+lessons = [ "Теория информации и кодирования",
+            "Математическая статистика",
+            "Философия",
+            "Безопасность операционных систем",
+            "Математический анализ",
+            "Основы программирования",
+            "Языки программирования",
+            "Безопасность систем баз данных",
+            "Дискретная математика",
+            "Иностранный язык",
+            "Компьютерное моделирование",
+            "Основы криптографии",
+            "Технологии и методы программирования",
+            "Русский язык",
+            "Геометрия",
+            "Физика",
+            "Информатика",
+            "Электроника и схемотехника",
+            "Основы ЭВМ и ВС",
+            "Теория электрический цепей",
+            "История",
+            "Алгебра",
+            "Менеджмент",
+            "Защита интеллектуальной собственности",
+            "Проектирование радиосистемы",
+            "Космические системы",
+            "Правоведение",
+            "Безопасность жизнедеятельности",
+            "Основы телевидения и радиотехника" ]
+
+
+auditoriums = []
+
+
+
 f = open("names.txt", 'r')
 students = f.readlines()
+professors = students
 
 
 for fac, groups in facs.items():
@@ -55,18 +91,66 @@ for name, latin in builds.items():
 groups_obj = Group.objects.all()
 groups = []
 for gr in groups_obj:
-        groups.append(gr.id)
+    groups.append(gr.id)
 
 
-for st in students:
-        creds = re.split(" ", st)
+# for st in students:
+#         creds = re.split(" ", st)
 
-        s, created = Student.objects.get_or_create(surname = creds[0], 
-                                          name = creds[1], 
-                                          patronymic = creds[2],
-                                          group_id = random.choice(groups))
-
-
-        print("\t", st, "created" if created  else "existed")
+#         s, created = Student.objects.get_or_create(surname = creds[0], 
+#                                           name = creds[1], 
+#                                           patronymic = creds[2],
+#                                           group_id = random.choice(groups))
 
 
+#         print("\t", st, "created" if created  else "existed")
+
+
+# for pr in professors:
+#         creds = re.split(" ", pr)
+
+#         s, created = Professor.objects.get_or_create(surname = creds[0],
+#                                                      name = creds[1],
+#                                                      patronymic = creds[2])
+#         print("\t", pr, "created" if created else "existed")
+
+
+builds_obj = Building.objects.all()
+
+# for b_obj in builds_obj:
+#     for aud in range(200, 230, 1):
+#         auditoriums.append(aud) 
+#         a, created = Auditorium.objects.get_or_create(aud_number = str(aud), building = b_obj)
+#         print("\t", aud, "created" if created else "existed")
+
+#     for aud in range(300, 330, 1):
+#         auditoriums.append(aud) 
+#         a, created = Auditorium.objects.get_or_create(aud_number = str(aud), building = b_obj)
+#         print("\t", aud, "created" if created else "existed")
+
+#     for aud in range(400, 430, 1):
+#         auditoriums.append(aud) 
+#         a, created = Auditorium.objects.get_or_create(aud_number = str(aud), building = b_obj)
+#         print("\t", aud, "created" if created else "existed")
+
+
+aud_obj = Auditorium.objects.all()
+pr_obj = Professor.objects.all()
+# for les in lessons:
+#         l, created = Lesson.objects.get_or_create(lesson_name = les, 
+#                                                 date = datetime.datetime.now(), 
+#                                                 lesson_number = random.choice([1, 2, 3, 4, 5, 6, 7]),
+#                                                 auditorium = random.choice(aud_obj),
+#                                                 professor = random.choice(pr_obj))
+
+#         print("\t", les, "created" if created else "existed")
+
+
+less_obj = Lesson.objects.all()
+
+for gr in groups_obj:
+        gl, created = Group_Lesson.objects.get_or_create(group = gr, lesson = random.choice(less_obj))
+        print("\t", "{0} : {1}".format(gl.group.group_number, gl.lesson.lesson_name), "created" if created else "existed")
+
+
+      
