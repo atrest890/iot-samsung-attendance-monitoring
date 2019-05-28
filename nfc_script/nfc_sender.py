@@ -29,15 +29,15 @@ class NFCSender():
 
         self._timer = self.__createTimer()
         if not self._hasStop:
-            self.Start()
+            self.start()
         
-    def Start(self):
+    def start(self):
         self._hasStop = False
         self._timer.start()
 
-    def Stop(self):
+    def stop(self):
         self._hasStop = True
         self._timer.cancel()
 
-    def Append(self, nfc):
+    def append(self, nfc):
         self._listToSend.append(nfc)

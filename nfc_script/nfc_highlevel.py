@@ -15,6 +15,7 @@ import nfc_sender
 class State(Enum):
     INIT = 0
     PROCESSING = 1
+    ENDING = 2
 
 def waitConnect(timeout=INFINITE, cardType=AnyCardType(), newcardonly=True):
     cardrequest = CardRequest(timeout=timeout, cardType=cardType, newcardonly=True)
@@ -53,12 +54,18 @@ while state == State.PROCESSING:
         response, sw1, sw2 = conn.transmit(ACR122_codes.APDU)
 
         if sw1 == 0x90 and sw2 == 0x00:
-            sender.Append(response)
+            sender.append(response)
         else:
             raise Exception( "Bad response on transmit[" + response + "], sw = " + str((hex(sw1), hex(sw2))) )
 
         conn.transmit(ACR122_codes.BUZZING)
         conn.disconnect()
+    except KeyboardInterrupt:
+        print("Keyboard interrupt")
+        state = State.ENDING
+    except InterruptedError:
+        print("Interrupt")
+        state = State.ENDING
     except Exception as e:
         print(e)
 
