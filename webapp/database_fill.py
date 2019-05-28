@@ -136,14 +136,14 @@ builds_obj = Building.objects.all()
 
 aud_obj = Auditorium.objects.all()
 pr_obj = Professor.objects.all()
-# for les in lessons:
-#         l, created = Lesson.objects.get_or_create(lesson_name = les, 
-#                                                 date = datetime.datetime.now(), 
-#                                                 lesson_number = random.choice([1, 2, 3, 4, 5, 6, 7]),
-#                                                 auditorium = random.choice(aud_obj),
-#                                                 professor = random.choice(pr_obj))
+for les in lessons:
+        l, created = Lesson.objects.get_or_create(lesson_name = les, 
+                                                date = datetime.datetime.now(), 
+                                                lesson_number = random.choice([1, 2, 3, 4, 5, 6, 7]),
+                                                auditorium = random.choice(aud_obj),
+                                                professor = random.choice(pr_obj))
 
-#         print("\t", les, "created" if created else "existed")
+        print("\t", les, "created" if created else "existed")
 
 
 less_obj = Lesson.objects.all()
@@ -157,7 +157,7 @@ attendance = Attendance.objects.all()
 st_obj = Student.objects.all()
 
 
-# for i in range(1, 200, 1):
-#         a, created = Attendance.objects.get_or_create(student = random.choice(st_obj), lesson = random.choice(less_obj))
-#         print("\t", a.student.surname, "created" if created else "existed")
+for i in range(1, 200, 1):
+        a, created = Attendance.objects.get_or_create(student = random.choice(st_obj), lesson = random.choice(less_obj))
+        print("\t", a.student.surname, "created" if created else "existed")
       

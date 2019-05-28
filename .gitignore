@@ -12,3 +12,6 @@ names.txt
 *.jpeg
 *.jpg
 *.png
+
+# vscode files
+.vscode

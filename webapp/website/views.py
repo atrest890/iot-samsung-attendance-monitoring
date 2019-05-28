@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponseNotFound
-from website.models import *
+from website.models import Student, Faculty, Auditorium, Building, Group, Group_Lesson, Lesson, Professor, Attendance
 import cyrtranslit
+import website.model_utils as mu
 
 def index(request): 
     return render(request, 'website/index.html')
@@ -9,39 +10,41 @@ def index(request):
 
 
 def header(request):
-    faculties_obj = Faculty.objects.all()
+    FacultyObjList = Faculty.objects.all()
 
     faculties = {}
-    for obj in faculties_obj:
+    for obj in FacultyObjList:
         name = obj.faculty_name
         latin_name = obj.latin_name
-        faculties[name] = "/faculties/" + latin_name
+        faculties[name] = f"/faculties/{latin_name}"
 
-    buildings_obj = Building.objects.all()
+    BuildingObjList = Building.objects.all()
 
     buildings = {}
-    for obj in buildings_obj:
+
+    for obj in BuildingObjList:
         name = obj.build_name
         latin_name = obj.latin_name
-        buildings[name] = "/buildings/" + latin_name
+        buildings[name] = f"/buildings/{latin_name}"
 
-    return render(request, 'website/header.html', context = {"faculties" : faculties, "buildings" : buildings})
+    return render(request, 'website/header.html', context = {"faculties" : faculties, 
+                                                             "buildings" : buildings})
 
 
 
 def faculties(request, faculty):
-    faculty_obj = Faculty.objects.get(latin_name = faculty)
-    if not faculty_obj:
+    FacultyObj = Faculty.objects.get(latin_name = faculty)
+    if not FacultyObj:
         return HttpResponseNotFound('<h1>Такого факультета не существует</h1>')
 
-    groups_obj = Group.objects.filter(faculty_id = faculty_obj.id)
+    GroupObjList = Group.objects.filter(faculty_id = FacultyObj.id)
     all_groups = {}
     urls = {}
-    for group in groups_obj:
+    for group in GroupObjList:
         course = group.course
         group_number = group.group_number
         all_groups.setdefault(course, [])
-        urls[group_number] = "/faculties/" + faculty + "/groups/" + group_number
+        urls[group_number] = f"/faculties/{faculty}/groups/{group_number}"
         all_groups[course].append({"number" : group_number, "url" : urls[group_number]})
             
     print(urls)
@@ -49,68 +52,84 @@ def faculties(request, faculty):
 
 
 
-def groups(request, **kwargs):
-    faculty_obj = Faculty.objects.get(latin_name = kwargs['faculty'])
-    group = Group.objects.get(group_number = kwargs['group'])
+def groups(request, faculty, group):
+    FacultyObj = Faculty.objects.get(latin_name = faculty)
+    GroupObj = Group.objects.get(group_number = group)
 
     # TODO: исправить условие
 
-    if not faculty_obj and not groups_obj:
+    if not FacultyObj and not GroupObj:
         return HttpResponseNotFound('<h1>Такой группы не существует</h1>')
 
-    students_obj = Student.objects.filter(group = group.id)
+    StudentObjList = Student.objects.filter(group = GroupObj.id)
     students = {}
-    index = 0
 
-    for st in students_obj:
-        fio = st.surname + " " + st.name + " " + st.patronymic
-        students[fio] = "/faculties/" + kwargs['faculty'] + "/groups/" + kwargs['group'] + "/students/" + str(st.id)
+    for st in StudentObjList:
+        fullname = f"{st.surname} {st.name} {st.patronymic}"
+        students[fullname] = f"/faculties/{faculty}/groups/{group}/students/{st.id}"
 
-    return render(request, 'website/group.html', context = { "students" : students })
-
+    return render(request, 'website/group.html', context = {"students" : students})
 
 
-def students(request, **kwargs):
-    # if kwargs['faculty'] == 'fb':
-    #     if kwargs['group'] == '123-4':
-    #         if kwargs['student'] == 'kalinin':
-    #             return render(request, 'website/attendance_one.html')
-    # return HttpResponseNotFound('<h1>Такого студента не существует</h1>')
-    faculty_obj = Faculty.objects.get(latin_name = kwargs['faculty'])
-    groups_obj = Group.objects.get(group_number = kwargs['group'])
-    student_obj = Student.objects.get(id = kwargs['student_id'])
 
-    # TODO: исправить условие
+def students(request, faculty, group, student_id):
+    # FacultyObj = Faculty.objects.get(latin_name = kwargs['faculty'])
+    # GroupObj = Group.objects.get(group_number = kwargs['group'])
+    StudentObj = Student.objects.get(id = student_id)
+      # TODO: исправить условие
 
-    if not student_obj:
+    if not StudentObj:
         return HttpResponseNotFound('<h1>Такого студента не существует</h1>')
 
-    group = Group.objects.get(group_number = kwargs['group'])   
-    gl_obj = Group_Lesson.objects.filter(group_id = group.id)
-    less_obj = []
-    for gl in gl_obj:
-        less_obj.append(Lesson.objects.get(id = gl.lesson_id))
+    GroupObj = Group.objects.get(group_number = group)   
+    GroupObjList = Group_Lesson.objects.filter(group_id = GroupObj.id)
 
-    lessons = []
+    LessonObjList = []
+    for gl in GroupObjList:
+        LessonObj = Lesson.objects.get(id = gl.lesson_id)
+        LessonObjList.append(LessonObj)
+
+
+    AttendanceObjList = Attendance.objects.all()
+    current_attendance = []
+    for a in AttendanceObjList:
+        current_attendance.append(a.student_id)
+
     
-    for l in less_obj:
+    lessons = []
+    general_attendance = []
+
+    for gn in GroupObjList:
+        general_attendance.append(gn.group_id)
+
+    for less in LessonObjList:
         lesson = []
-        for i in range(1, 4, 1):
-            date = l.date
-            lesson.append(date)
-            name = l.lesson_name
-            lesson.append(name)
-            aud = Auditorium.objects.get(id = l.auditorium_id)
-            aud_number = aud.aud_number
-            lesson.append(aud_number)
+        for i in range(1, 5, 1):
+            lesson.append(less.date)
+
+            lesson.append(less.lesson_name)
+            
+            aud = Auditorium.objects.get(id = less.auditorium_id)
+            lesson.append(aud.aud_number)
+
             build = Building.objects.get(id = aud.building_id)
             lesson.append(build.build_name)
 
+            student_in_group = Student.objects.get(id = student_id)
+
+            if student_in_group.group_id in general_attendance and less.id in current_attendance:
+                lesson.append("Был")
+            elif student_in_group.group_id in general_attendance and less.id not in current_attendance:
+                lesson.append("Не был")
+            
+
+            
         lessons.append(lesson)
 
-    creds = str(student_obj.surname) + " " + str(student_obj.name) + " " + str(student_obj.patronymic) + " " + str(group.group_number)
+    fullname_and_group = mu.getFullNameAndGroup(StudentObj)
 
-    return render(request, 'website/student.html', context = {"lessons" : lessons, "creds" : creds})
+    return render(request, 'website/student.html', context = {"lessons" : lessons, 
+                                                              "fullname_and_group" : fullname_and_group})
 
 
 
