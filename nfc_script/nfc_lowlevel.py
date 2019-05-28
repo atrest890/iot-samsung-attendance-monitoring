@@ -37,9 +37,10 @@ print('Calibration Time!\n')
 # если нет карты, то дожидаёмся её
 while not pcsc_utils.insertedCardState(readerstates[0]):
     print("Place a tag on the device")
-    timeout_calibration = 30 # 30 секунд?
+    timeout_calibration = 30*1000 # 30 секунд?
     hres, readerstates = SCardGetStatusChange(hcontext, timeout_calibration, readerstates)
     pcsc_utils.check(hres, 'get status change')
+    pcsc_utils.printState(readerstates[0])
 
 
 # и отключаем стандартный биб, взяв коннект
@@ -63,7 +64,7 @@ pcsc_utils.check(hres, 'init buzzing 1')
 # ожидаем освобождение ридера
 while pcsc_utils.insertedCardState(readerstates[0]):
     print("Leave a tag from the device")
-    timeout_calibration = 30 # 30 секунд?
+    timeout_calibration = 30*1000 # 30 секунд?
     hres, readerstates = SCardGetStatusChange(hcontext, timeout_calibration, readerstates)
     pcsc_utils.check(hres, 'get status change')
 
@@ -76,16 +77,23 @@ while True:
     pcsc_utils.check(hres, 'get status change')
     pcsc_utils.printState(readerstates[0])
 
-    # получаем tag
-    hres, response = SCardTransmit(hcard, dwActiveProtocol, APDU)
-    pcsc_utils.check(hres, 'get apdu')
-    print("responce:", smartcard.util.toHexString(response, smartcard.util.HEX))
+    # коннект
+    hres, hcard, dwActiveProtocol = SCardConnect(hcontext, reader,
+                                        SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1)
+    pcsc_utils.check(hres, 'connect')
 
-    # TODO: а что если ошибочка?
+    try:
+        # получаем tag
+        hres, response = SCardTransmit(hcard, dwActiveProtocol, APDU)
+        pcsc_utils.check(hres, 'get apdu')
+        print("responce:", smartcard.util.toHexString(response, smartcard.util.HEX))
+        # TODO: а что если ошибочка?
 
-    # сообщаяем звуком
-    hres, response = SCardTransmit(hcard, dwActiveProtocol, BUZZING)
-    pcsc_utils.check(hres, 'ending buzzing')
-
+        # сообщаяем звуком
+        hres, response = SCardTransmit(hcard, dwActiveProtocol, BUZZING)
+        pcsc_utils.check(hres, 'ending buzzing')
+    finally:
+        hres = SCardDisconnect(hcard, SCARD_UNPOWER_CARD)
+        pcsc_utils.check(hres, 'disconnect')
 
 
