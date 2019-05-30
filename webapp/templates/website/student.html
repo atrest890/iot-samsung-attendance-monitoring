@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title></title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/3rd-party/bootstrap-3.4.0.min.css">
+  <link rel=stylesheet href="/static/css/main.css">
+
+
+</head>
+<body>
+    <div id="header"></div>
+
+    <h1>{{fullname_and_group}}</h1>
+    <table class = "table table-bordered">
+        <thead>
+        <thead class="thead">
+           <tr>
+            <th scope="col">Дата</th>
+            <th scope="col">Предмет</th>
+            <th scope="col">№ номер кабинета</th>
+            <th scope="col">Корпус</th>
+            <th scope="col">Присутствие</th>
+           </tr>
+        </div>
+        </thead>
+        
+        <tbody>
+           <!-- <tr> -->
+              <!-- <td scope="row">10.05.2019</td>
+              <td>БСБД</td>
+              <td>808</td>
+              <td>УЛК</td>
+              <td>
+                     <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+                           <option selected>Выберите...</option>
+                           <option selected>Был</option>
+                           <option value="1">Не был</option>
+                           <option value="2">Не был (ув. пр.)</option>
+                     </select>
+                </td>
+           </tr> -->
+
+           {% for l in lessons %}
+               <tr>
+                  <td scope="row">{{l.date}}</td>
+                  <td>{{l.name}}</td>
+                  <td>{{l.aud}}</td>
+                  <td>{{l.build}}</td>
+                  <td>{{l.status}}</td>
+              </tr>
+          {% endfor %}
+
+        </tbody>
+     </table>
+
+    <script src="/static/3rd-party/jquery-3.4.0.min.js"></script>
+    <script src="/static/3rd-party/popper-1.14.7.min.js"></script>
+    <script src="/static/3rd-party/bootstrap-3.4.0.min.js"></script>
+    <script src="/static/js/include-head.js"></script>
+
+  </body>
+</html>

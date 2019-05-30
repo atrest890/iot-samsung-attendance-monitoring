@@ -1,0 +1,17 @@
+# python
+__pycache__/
+*.pyc
+
+# django
+migrations/
+
+# txt
+names.txt
+
+# pictures
+*.jpeg
+*.jpg
+*.png
+
+# vscode files
+.vscode
