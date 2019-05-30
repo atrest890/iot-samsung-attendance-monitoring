@@ -12,7 +12,7 @@
 
     <div id="header"></div>
 
-    <h1>УЛК 403 ауд. 2019.05.10 ТИВ</h1>
+    <h1></h1>
     <table class = "table table-bordered">
         
         <thead>
@@ -26,7 +26,7 @@
         </div>
         </thead>
         
-        <tbody>
+        <!-- <tbody>
            <tr>
               <td scope="row">1</td>
               <td><a href="attendance_one.html">Калинин Филипп Анатолиевич</a></td>
@@ -40,7 +40,16 @@
                <td><a href="123-4.html">123-4</a></td>
                <td>Нет</td>
             </tr>
-        </tbody>
+        </tbody> -->
+
+        {%for student in students%}
+            <tr>
+               <td scope="row">{{forloop.counter}}</td>
+               <td><a href={{student.url_student}}>{{student.fullname}}</a></td>
+               <td><a href={{student.url_group}}>{{student.group}}</a></td>
+               <td>{{student.status}}</td>
+            </tr>
+        {% endfor %}
          
      </table>
 

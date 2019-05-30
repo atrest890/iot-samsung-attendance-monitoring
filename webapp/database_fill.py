@@ -1,9 +1,21 @@
 from website.models import *
-import re, random, datetime
+import re, random, datetime, time
 
 current_year = 9
 def getCourse(group):
     return current_year - int(group[2])
+
+
+def getDateListFromWeek(date):
+
+    p_year = date.year
+    p_week = date.isocalendar()[1]
+    firstdayofweek = datetime.datetime.strptime(f'{p_year}-W{int(p_week )- 1}-1', "%Y-W%W-%w").date()
+    res = []
+    for i in range(0, 6, 1):
+        res.append(firstdayofweek + datetime.timedelta(days=i))
+
+    return res
 
 
 facs = { "РТФ" : ["118", "127", "146-1", "145-2"], 
@@ -94,70 +106,74 @@ for gr in groups_obj:
     groups.append(gr.id)
 
 
-# for st in students:
-#         creds = re.split(" ", st)
+for st in students:
+        creds = re.split(" ", st)
 
-#         s, created = Student.objects.get_or_create(surname = creds[0], 
-#                                           name = creds[1], 
-#                                           patronymic = creds[2],
-#                                           group_id = random.choice(groups))
-
-
-#         print("\t", st, "created" if created  else "existed")
+        s, created = Student.objects.get_or_create(surname = creds[0], 
+                                          name = creds[1], 
+                                          patronymic = creds[2],
+                                          group_id = random.choice(groups))
 
 
-# for pr in professors:
-#         creds = re.split(" ", pr)
+        print("\t", st, "created" if created  else "existed")
 
-#         s, created = Professor.objects.get_or_create(surname = creds[0],
-#                                                      name = creds[1],
-#                                                      patronymic = creds[2])
-#         print("\t", pr, "created" if created else "existed")
+
+for pr in professors:
+        creds = re.split(" ", pr)
+
+        s, created = Professor.objects.get_or_create(surname = creds[0],
+                                                     name = creds[1],
+                                                     patronymic = creds[2])
+        print("\t", pr, "created" if created else "existed")
 
 
 builds_obj = Building.objects.all()
 
-# for b_obj in builds_obj:
-#     for aud in range(200, 230, 1):
-#         auditoriums.append(aud) 
-#         a, created = Auditorium.objects.get_or_create(aud_number = str(aud), building = b_obj)
-#         print("\t", aud, "created" if created else "existed")
+for b_obj in builds_obj:
+    for aud in range(200, 205, 1):
+        auditoriums.append(aud) 
+        a, created = Auditorium.objects.get_or_create(aud_number = str(aud), building = b_obj)
+        print("\t", aud, "created" if created else "existed")
 
-#     for aud in range(300, 330, 1):
-#         auditoriums.append(aud) 
-#         a, created = Auditorium.objects.get_or_create(aud_number = str(aud), building = b_obj)
-#         print("\t", aud, "created" if created else "existed")
+    for aud in range(300, 305, 1):
+        auditoriums.append(aud) 
+        a, created = Auditorium.objects.get_or_create(aud_number = str(aud), building = b_obj)
+        print("\t", aud, "created" if created else "existed")
 
-#     for aud in range(400, 430, 1):
-#         auditoriums.append(aud) 
-#         a, created = Auditorium.objects.get_or_create(aud_number = str(aud), building = b_obj)
-#         print("\t", aud, "created" if created else "existed")
+    for aud in range(400, 405, 1):
+        auditoriums.append(aud) 
+        a, created = Auditorium.objects.get_or_create(aud_number = str(aud), building = b_obj)
+        print("\t", aud, "created" if created else "existed")
 
 
 aud_obj = Auditorium.objects.all()
 pr_obj = Professor.objects.all()
-for les in lessons:
+for _ in range(5):
+    for les in lessons:
         l, created = Lesson.objects.get_or_create(lesson_name = les, 
-                                                date = datetime.datetime.now(), 
-                                                lesson_number = random.choice([1, 2, 3, 4, 5, 6, 7]),
-                                                auditorium = random.choice(aud_obj),
-                                                professor = random.choice(pr_obj))
+                                        date = random.choice(getDateListFromWeek(datetime.date.today())), 
+                                        lesson_number = random.choice([1, 2, 3, 4, 5, 6, 7]),
+                                        auditorium = random.choice(aud_obj),
+                                        professor = random.choice(pr_obj))
 
         print("\t", les, "created" if created else "existed")
 
 
 less_obj = Lesson.objects.all()
 
-for gr in groups_obj:
-        gl, created = Group_Lesson.objects.get_or_create(group = gr, lesson = random.choice(less_obj))
+for less in less_obj:
+    for _ in range(2):
+        gl, created = Group_Lesson.objects.get_or_create(group = random.choice(groups_obj), lesson = less)
         print("\t", "{0} : {1}".format(gl.group.group_number, gl.lesson.lesson_name), "created" if created else "existed")
 
 
-attendance = Attendance.objects.all()
 st_obj = Student.objects.all()
 
-
-for i in range(1, 200, 1):
-        a, created = Attendance.objects.get_or_create(student = random.choice(st_obj), lesson = random.choice(less_obj))
-        print("\t", a.student.surname, "created" if created else "existed")
+for i in range(1, 300, 1):
+        st = random.choice(st_obj)
+        lessonList = Group_Lesson.objects.filter(group = st.group).values("lesson")
+        ll = Lesson.objects.filter(id__in = lessonList)
+        
+        a, created = Attendance.objects.get_or_create(student = st, lesson = random.choice(ll))
+        print("\t", a.student.surname, a.lesson.lesson_name, a.lesson.auditorium, "created" if created else "existed")
       

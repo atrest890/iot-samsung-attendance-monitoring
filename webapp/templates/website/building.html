@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title></title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/3rd-party/bootstrap-3.4.0.min.css">
+  <link rel=stylesheet href="/static/css/main.css">
+</head>
+<body>
+  <div id="header"></div>
+    <table class = "table table-bordered">
+      <thead>
+        <tr>
+          <th rowspan="2" class="first">Аудитория</th>
+          <th colspan="7">пн</th>
+          <th colspan="7">вт</th>
+          <th colspan="7">ср</th>
+          <th colspan="7">чт</th>
+          <th colspan="7">пт</th>
+          <th colspan="7">сб</th>
+        </tr>
+
+          <tr>
+            <td class="first">1</td>
+            <td class="first">2</td>
+            <td class="first">3</td>
+            <td class="first">4</td>
+            <td class="first">5</td>
+            <td class="first">6</td>
+            <td class="first">7</td>
+            <td class="first">1</td>
+            <td class="first">2</td>
+            <td class="first">3</td>
+            <td class="first">4</td>
+            <td class="first">5</td>
+            <td class="first">6</td>
+            <td class="first">7</td>
+            <td class="first">1</td>
+            <td class="first">2</td>
+            <td class="first">3</td>
+            <td class="first">4</td>
+            <td class="first">5</td>
+            <td class="first">6</td>
+            <td class="first">7</td>
+            <td class="first">1</td>
+            <td class="first">2</td>
+            <td class="first">3</td>
+            <td class="first">4</td>
+            <td class="first">5</td>
+            <td class="first">6</td>
+            <td class="first">7</td>
+            <td class="first">1</td>
+            <td class="first">2</td>
+            <td class="first">3</td>
+            <td class="first">4</td>
+            <td class="first">5</td>
+            <td class="first">6</td>
+            <td class="first">7</td>
+            <td class="first">1</td>
+            <td class="first">2</td>
+            <td class="first">3</td>
+            <td class="first">4</td>
+            <td class="first">5</td>
+            <td class="first">6</td>
+            <td class="first">7</td>
+          </tr>
+                              
+          {% for aud, lessons in auditoriums.items %}
+          <tr>
+              <td>{{aud}}</td>
+              {% for lesson in lessons %}
+                  {% if lesson == None%}
+                      <td> </td>
+                  {% else %}
+                      <td><a href={{lesson.url}}>{{lesson.name}}</a></td>
+                  {% endif %}
+              {% endfor %}
+              <!-- <td><a href="ulk/auditoriums/403/date/2019.05.05/index/1">ТИВ</a></td>
+              <td></td>
+              <td>МА</td> -->
+          </tr>
+          {% endfor %}  
+
+
+          <!-- <tr>
+              <td>403</td>
+              <td><a href="ulk/auditoriums/403/date/2019.05.05/index/1">ТИВ</a></td>
+              <td></td>
+              <td>МА</td>
+          </tr> -->
+
+          
+
+        </thead>
+        </table>
+      
+    <script src="/static/3rd-party/jquery-3.4.0.min.js"></script>
+    <script src="/static/3rd-party/popper-1.14.7.min.js"></script>
+    <script src="/static/3rd-party/bootstrap-3.4.0.min.js"></script>
+    <script src="/static/js/include-head.js"></script>
+</body>
+</html>
