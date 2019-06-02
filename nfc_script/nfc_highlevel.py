@@ -40,26 +40,33 @@ while state == State.INIT:
         conn.disconnect()
         print("Calibration is finished!")
         print("Leave a tag from the device")
+        state = State.PROCESSING
     except Exception as e:
         print(e)
 
-state = State.PROCESSING
-sender = nfc_sender.NFCSender("192.168.43.9", 9999)
+#state = State.PROCESSING
+sender = nfc_sender.NFCSender()
+sender.start()
 
 # main loop
 while state == State.PROCESSING:
     try:
+        print("Wait to card")
         conn = waitConnect(newcardonly=False)
         conn.connect()
+        print("Connected, transmiting...")
         response, sw1, sw2 = conn.transmit(ACR122_codes.APDU)
 
+        print("responce: ", response)
         if sw1 == 0x90 and sw2 == 0x00:
             sender.append(response)
         else:
             raise Exception( "Bad response on transmit[" + response + "], sw = " + str((hex(sw1), hex(sw2))) )
 
+        print("Buzzing...")
         conn.transmit(ACR122_codes.BUZZING)
         conn.disconnect()
+        print("Disconnected")
     except KeyboardInterrupt:
         print("Keyboard interrupt")
         state = State.ENDING
@@ -69,3 +76,5 @@ while state == State.PROCESSING:
     except Exception as e:
         print(e)
 
+if state == State.ENDING:
+    sender.stop()
