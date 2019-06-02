@@ -167,8 +167,11 @@ def buildings(request, building):
     AuditoriumObjList = Auditorium.objects.filter(building_id = BuildObj.id)
 
     auditoriums = {}
-    start_date = date(2019, 5, 27)
-    end_date = date(2019, 6, 2)
+
+    iso = datetime.today().isocalendar()
+    start_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-1', '%Y-%W-%w')
+    end_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-0', '%Y-%W-%w')
+    
     for aud in AuditoriumObjList:
         LessonObjList = Lesson.objects.filter(auditorium_id = aud.id, date__range = (start_date, end_date))
         auditoriums[aud.aud_number] = [None] * (7*6)

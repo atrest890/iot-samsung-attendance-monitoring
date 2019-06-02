@@ -1,6 +1,8 @@
 from website.models import *
 import re, random, datetime, time
 
+from datagate.models import Device
+
 current_year = 9
 def getCourse(group):
     return current_year - int(group[2])
@@ -17,6 +19,9 @@ def getDateListFromWeek(date):
 
     return res
 
+def getId(num):
+        import hashlib
+        return hashlib.md5(num.to_bytes(4, 'big')).hexdigest()
 
 facs = { "РТФ" : ["118", "127", "146-1", "145-2"], 
          "РКФ" : ["218", "227", "246-1", "245-2"], 
@@ -107,11 +112,12 @@ for gr in groups_obj:
 
 
 for st in students:
-        creds = re.split(" ", st)
+        creds = st.strip().split(' ')        
 
         s, created = Student.objects.get_or_create(surname = creds[0], 
                                           name = creds[1], 
                                           patronymic = creds[2],
+                                          identifier = creds[3],
                                           group_id = random.choice(groups))
 
 
@@ -170,10 +176,54 @@ for less in less_obj:
 st_obj = Student.objects.all()
 
 for i in range(1, 300, 1):
-        st = random.choice(st_obj)
-        lessonList = Group_Lesson.objects.filter(group = st.group).values("lesson")
-        ll = Lesson.objects.filter(id__in = lessonList)
-        
-        a, created = Attendance.objects.get_or_create(student = st, lesson = random.choice(ll))
-        print("\t", a.student.surname, a.lesson.lesson_name, a.lesson.auditorium, "created" if created else "existed")
-      
+    st = random.choice(st_obj)
+    lessonList = Group_Lesson.objects.filter(group = st.group).values("lesson")
+    ll = Lesson.objects.filter(id__in = lessonList)
+
+    a, created = Attendance.objects.get_or_create(student = st, lesson = random.choice(ll))
+    print("\t", a.student.surname, a.lesson.lesson_name, a.lesson.auditorium, "created" if created else "existed")
+
+# 707
+aud, created = Auditorium.objects.get_or_create(aud_number = '707', building = Building.objects.get(build_name='УЛК'))
+print(aud, "created" if created else "existed")
+ID = 'f2e50d503396c297d13284d7849c9846'
+dev, created = Device.objects.get_or_create(identifier=ID, auditorium = aud)
+print(dev, "created" if created else "existed")
+
+# test fac
+f, created = Faculty.objects.get_or_create(faculty_name = 'TEST', latin_name = 'TEST')
+print(f, "created" if created else "existed")
+
+# 111-t
+g1, created = Group.objects.get_or_create(group_number = '111-t', faculty = f, course = 1)
+print('\t', g1, "created" if created else "existed")
+
+# test user 1 2375558084
+s, created = Student.objects.get_or_create(surname = 'test', name = 'user1', identifier = getId(2375558084), group = g1)
+print('\t\t', s, "created" if created else "existed")
+# test user 2 566502340
+s, created = Student.objects.get_or_create(surname = 'test', name = 'user2', patronymic='22222', identifier = getId(566502340), group = g1)
+print('\t\t', s, "created" if created else "existed")
+
+# 236-t
+g2, created = Group.objects.get_or_create(group_number = '236-t', faculty = f, course = 2)
+print('\t', g2, "created" if created else "existed")
+
+# test user 3 1017717700
+s, created = Student.objects.get_or_create(surname = 'test', name = 'user3', patronymic='333333', identifier = getId(1017717700), group = g2)
+print('\t\t', s, "created" if created else "existed")
+# test user 4 3317834692
+s, created = Student.objects.get_or_create(surname = 'test', name = 'user3', identifier = getId(3317834692), group = g2)
+print('\t\t', s, "created" if created else "existed")
+
+p, created = Professor.objects.get_or_create(surname = 'iot', name = 'tusur', patronymic = 'sumsung')
+print(p, "created" if created else "existed")
+
+less, created = Lesson.objects.get_or_create(lesson_name = 'IOT', date = datetime.datetime(2019, 6, 8), lesson_number = 3, auditorium = aud, professor = p)
+print(less, "created" if created else "existed")
+
+gl, created = Group_Lesson.objects.get_or_create(group = g1, lesson = less)
+print('\t', gl, "created" if created else "existed")
+gl, created = Group_Lesson.objects.get_or_create(group = g2, lesson = less)
+print('\t', gl, "created" if created else "existed")
+
