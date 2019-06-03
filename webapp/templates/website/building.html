@@ -4,7 +4,7 @@
   <title></title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/static/3rd-party/bootstrap-3.4.0.min.css">
+  <link rel="stylesheet" href="/static/3rd-party/bootstrap-4.3.1.min.css">
   <link rel=stylesheet href="/static/css/main.css">
   <style>
     td > a {
@@ -16,7 +16,7 @@
   <div id="header"></div>
   <h2>{{fullname}}</h2>
     <table class = "table table-bordered">
-      <thead class = "thead">
+      <thead class = "thead-dark">
         <tr>
           <th rowspan="2" class="first">Аудитория</th>
           <th colspan="7">пн</th>
@@ -27,51 +27,51 @@
           <th colspan="7">сб</th>
         </tr>
 
-          <tr>
-            <td class="first">1</td>
-            <td class="first">2</td>
-            <td class="first">3</td>
-            <td class="first">4</td>
-            <td class="first">5</td>
-            <td class="first">6</td>
-            <td class="first">7</td>
-            <td class="first">1</td>
-            <td class="first">2</td>
-            <td class="first">3</td>
-            <td class="first">4</td>
-            <td class="first">5</td>
-            <td class="first">6</td>
-            <td class="first">7</td>
-            <td class="first">1</td>
-            <td class="first">2</td>
-            <td class="first">3</td>
-            <td class="first">4</td>
-            <td class="first">5</td>
-            <td class="first">6</td>
-            <td class="first">7</td>
-            <td class="first">1</td>
-            <td class="first">2</td>
-            <td class="first">3</td>
-            <td class="first">4</td>
-            <td class="first">5</td>
-            <td class="first">6</td>
-            <td class="first">7</td>
-            <td class="first">1</td>
-            <td class="first">2</td>
-            <td class="first">3</td>
-            <td class="first">4</td>
-            <td class="first">5</td>
-            <td class="first">6</td>
-            <td class="first">7</td>
-            <td class="first">1</td>
-            <td class="first">2</td>
-            <td class="first">3</td>
-            <td class="first">4</td>
-            <td class="first">5</td>
-            <td class="first">6</td>
-            <td class="first">7</td>
-          </tr>
-        </thead>         
+        <tr>
+          <th class="first">1</th>
+          <th class="first">2</th>
+          <th class="first">3</th>
+          <th class="first">4</th>
+          <th class="first">5</th>
+          <th class="first">6</th>
+          <th class="first">7</th>
+          <th class="first">1</th>
+          <th class="first">2</th>
+          <th class="first">3</th>
+          <th class="first">4</th>
+          <th class="first">5</th>
+          <th class="first">6</th>
+          <th class="first">7</th>
+          <th class="first">1</th>
+          <th class="first">2</th>
+          <th class="first">3</th>
+          <th class="first">4</th>
+          <th class="first">5</th>
+          <th class="first">6</th>
+          <th class="first">7</th>
+          <th class="first">1</th>
+          <th class="first">2</th>
+          <th class="first">3</th>
+          <th class="first">4</th>
+          <th class="first">5</th>
+          <th class="first">6</th>
+          <th class="first">7</th>
+          <th class="first">1</th>
+          <th class="first">2</th>
+          <th class="first">3</th>
+          <th class="first">4</th>
+          <th class="first">5</th>
+          <th class="first">6</th>
+          <th class="first">7</th>
+          <th class="first">1</th>
+          <th class="first">2</th>
+          <th class="first">3</th>
+          <th class="first">4</th>
+          <th class="first">5</th>
+          <th class="first">6</th>
+          <th class="first">7</th>
+        </tr>
+      </thead>         
           {% for aud, lessons in auditoriums.items %}
           <tr>
               <td>{{aud}}</td>
@@ -79,31 +79,17 @@
                   {% if lesson == None%}
                       <td> </td>
                   {% else %}
-                      <td><a href={{lesson.url}}>{{lesson.name}}</a></td>
+                      <td><a data-toggle="tooltip" data-placement="top" title="Tooltip on top" href={{lesson.url}}>{{lesson.name}}</a></td>
                   {% endif %}
               {% endfor %}
-              <!-- <td><a href="ulk/auditoriums/403/date/2019.05.05/index/1">ТИВ</a></td>
-              <td></td>
-              <td>МА</td> -->
           </tr>
           {% endfor %}  
-
-
-          <!-- <tr>
-              <td>403</td>
-              <td><a href="ulk/auditoriums/403/date/2019.05.05/index/1">ТИВ</a></td>
-              <td></td>
-              <td>МА</td>
-          </tr> -->
-
-          
-
         </thead>
         </table>
       
     <script src="/static/3rd-party/jquery-3.4.0.min.js"></script>
     <script src="/static/3rd-party/popper-1.14.7.min.js"></script>
-    <script src="/static/3rd-party/bootstrap-3.4.0.min.js"></script>
+    <script src="/static/3rd-party/bootstrap-4.3.1.min.js"></script>
     <script src="/static/js/include-head.js"></script>
 </body>
 </html>

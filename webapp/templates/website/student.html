@@ -4,16 +4,26 @@
   <title></title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/static/3rd-party/bootstrap-3.4.0.min.css">
+  <link rel="stylesheet" href="/static/3rd-party/bootstrap-4.3.1.min.css">
   <link rel=stylesheet href="/static/css/main.css">
 </head>
 <body>
     <div id="header"></div>
+    <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Toolbar with button groups" style="margin: 1.5em;">
+      <div class="h2">
+        {{fullname_and_group}} гр.
+      </div>
+      <div class="btn-group" role="group" aria-label="First group">
+        <a class="btn btn-secondary" href="{{urls.week}}" role="button">За неделю</a>
+        <a class="btn btn-secondary" href="{{urls.month}}" role="button">За месяц</a>
+        <a class="btn btn-secondary" href="{{urls.year}}" role="button">За год</a>
+        <a class="btn btn-secondary" href="#" role="button">За период...</a>
+      </div>
+    </div>
 
-    <h2>{{fullname_and_group}} гр.</h2>
     <table class = "table table-bordered">
       <thead>
-      <thead class="thead">
+      <thead class="thead-dark">
          <tr>
          <th scope="col">Дата</th>
          <th scope="col">Предмет</th>
@@ -46,7 +56,13 @@
                   <td>{{l.name}}</td>
                   <td>{{l.aud}}</td>
                   <td>{{l.build}}</td>
-                  <td>{{l.status}}</td>
+                  {% if l.status == "Был" %}
+                    <td style="background: #1DFE3F;">{{l.status}}</td>
+                  {% elif l.status == "Не был" %}
+                    <td style="background: #FE6264;">{{l.status}}</td>
+                  {% else %}
+                    <td style="background: #F5FE62;">{{l.status}}</td>
+                  {% endif %}
               </tr>
           {% endfor %}
 
@@ -55,7 +71,7 @@
 
     <script src="/static/3rd-party/jquery-3.4.0.min.js"></script>
     <script src="/static/3rd-party/popper-1.14.7.min.js"></script>
-    <script src="/static/3rd-party/bootstrap-3.4.0.min.js"></script>
+    <script src="/static/3rd-party/bootstrap-4.3.1.min.js"></script>
     <script src="/static/js/include-head.js"></script>
 
   </body>
