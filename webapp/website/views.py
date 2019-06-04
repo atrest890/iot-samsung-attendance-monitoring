@@ -188,3 +188,5 @@ def lessons(request, building, auditorium, date, index):
     return render(request, 'website/lesson.html', context = {"students" : students,
                                                              "lesson" : lesson})
  
+def login(request):
+    return render(request, 'website/login.html')
