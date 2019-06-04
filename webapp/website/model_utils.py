@@ -7,8 +7,8 @@ def getFullNameAndGroup(st):
     return ("{0} {1} {2} {3}".format(st.surname, st.name, st.patronymic, g.group_number))
 
 
-def getFullName(st):
-    return ("{0} {1} {2}".format(st.surname, st.name, st.patronymic))
+def getFullName(obj):
+    return ("{0} {1} {2}".format(obj.surname, obj.name, obj.patronymic))
 
 def get_if_exists(model, **kwargs):
     try:
