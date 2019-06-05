@@ -1,5 +1,5 @@
 body, html {
-    background: #F5F9FE;
+    background: white
 }
 
 .thead {
@@ -8,7 +8,7 @@ body, html {
 }
 
 .table {
-    background: #E4F0FC;
+    background: white;
     width: 1900px;
     margin: 0 auto;
     text-align: center;
@@ -22,13 +22,21 @@ h1 {
     margin: 25px;
 }
 
+h2 {
+  margin: 25px;
+}
+
+.link {
+  color: black;
+}
+
 .custom-select {
     position: relative;
     font-family: Arial;
   }
   
   .custom-select select {
-    display: none; /*hide original SELECT element: */
+    display: show; /*hide original SELECT element: */
   }
   
   .select-selected {
@@ -111,9 +119,17 @@ h1 {
 
 .carousel-inner > .item > img, .carousel-inner > .item > a > img {
   display: block;
-  height: 678px;
+  height: 678%;
   min-width: 100%;
   width: 100%;
   max-width: 100%;
   line-height: 1;
+}
+
+.navbar-nav li{
+  margin-left:15px;
+}
+
+.btn-secondary {
+  color: white;
 }

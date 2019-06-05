@@ -3,6 +3,7 @@ from django.db import models
 
 class Building(models.Model):
     build_name = models.CharField(max_length = 10, unique = True)
+    fullname = models.CharField(max_length = 40, unique = True, default = "")
     latin_name = models.CharField(max_length = 10, unique = True, default = "")
 
 
@@ -39,7 +40,8 @@ class Professor(models.Model):
 
 
 class Lesson(models.Model):
-    lesson_name = models.CharField(max_length = 20)
+    lesson_name = models.CharField(max_length = 40)
+    abbreviation = models.CharField(max_length = 20, default = "")
     date = models.DateField()
     lesson_number = models.IntegerField()
     professor = models.ForeignKey(Professor, on_delete = models.CASCADE)

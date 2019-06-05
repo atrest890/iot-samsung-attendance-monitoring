@@ -26,6 +26,7 @@ urlpatterns = [
     
     path('', views.index),
     path('header.html', views.header),
+    path('login', views.login),
     path('faculties/<str:faculty>', views.faculties),
     path('faculties/<str:faculty>/groups/<str:group>', views.groups),
     path('faculties/<str:faculty>/groups/<str:group>/students/<str:student_id>', views.students),

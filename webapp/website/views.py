@@ -48,7 +48,6 @@ def faculties(request, faculty):
         urls[group_number] = f"/faculties/{faculty}/groups/{group_number}"
         all_groups[course].append({"number" : group_number, "url" : urls[group_number]})
             
-    print(urls)
     return render(request, 'website/faculty.html', context = { "all_groups" : all_groups })
 
 
@@ -65,80 +64,45 @@ def groups(request, faculty, group):
     StudentObjList = Student.objects.filter(group = GroupObj.id)
     students = {}
 
+    group_number = Group.objects.get(group_number = group).group_number
     for st in StudentObjList:
         fullname = f"{st.surname} {st.name} {st.patronymic}"
         students[fullname] = f"/faculties/{faculty}/groups/{group}/students/{st.id}"
 
-    return render(request, 'website/group.html', context = {"students" : students})
+    return render(request, 'website/group.html', context = {"students" : students,
+                                                            "group" : group_number})
 
 
 
 def students(request, faculty, group, student_id):
-    # # FacultyObj = Faculty.objects.get(latin_name = kwargs['faculty'])
-    # # GroupObj = Group.objects.get(group_number = kwargs['group'])
-    # StudentObj = Student.objects.get(id = student_id)
-    #   # TODO: исправить условие
+    StudentObj = Student.objects.get(id = student_id)
+    fullname_and_group = mu.getFullNameAndGroup(StudentObj)
 
-    # if not StudentObj:
-    #     return HttpResponseNotFound('<h1>Такого студента не существует</h1>')
+    #TODO: добавить за весь период
 
-    # GroupObj = Group.objects.get(group_number = group)   
-    # GroupObjList = Group_Lesson.objects.filter(group_id = GroupObj.id)
+    today = date.today()
+    if 'month' in request.GET:
+        month = today.month
+        year = today.year
+        start_date = datetime(year, month, 1)
+        end_date = today
 
-    # LessonObjList = []
-    # for gl in GroupObjList:
-    #     LessonObj = Lesson.objects.get(id = gl.lesson_id)
-    #     LessonObjList.append(LessonObj)
+    elif 'year' in request.GET:
+        year = today.year
+        if datetime.today().month < 9:
+            year -= 1
+        start_date = datetime(year, 9, 1)
+        end_date = today
 
-
-    # AttendanceObjList = Attendance.objects.all()
-    # current_attendance = []
-    # for a in AttendanceObjList:
-    #     current_attendance.append(a.student_id)
-
-    
-    # lessons = []
-    # general_attendance = []
-
-    # for gn in GroupObjList:
-    #     general_attendance.append(gn.group_id)
-
-    # # TODO: исправить посещение по группам
-
-    # for less in LessonObjList:
-    #     lesson = []
-    #     for i in range(1, 5, 1):
-    #         lesson.append(less.date)
-
-    #         lesson.append(less.lesson_name)
-            
-    #         aud = Auditorium.objects.get(id = less.auditorium_id)
-    #         lesson.append(aud.aud_number)
-
-    #         build = Building.objects.get(id = aud.building_id)
-    #         lesson.append(build.build_name)
-
-    #         student_in_group = Student.objects.get(id = student_id)
-
-    #         if student_in_group.group_id in general_attendance and less.id in current_attendance:
-    #             lesson.append("Был")
-    #         elif student_in_group.group_id in general_attendance and less.id not in current_attendance:
-    #             lesson.append("Не был")
-            
-
-            
-    #     lessons.append(lesson)
-
-    # fullname_and_group = mu.getFullNameAndGroup(StudentObj)
-
-    # return render(request, 'website/student.html', context = {"lessons" : lessons, 
-    #                                                           "fullname_and_group" : fullname_and_group})
+    else:
+        iso = datetime.today().isocalendar()
+        start_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-1', '%Y-%W-%w')
+        end_date = today
+        
 
     GroupObj = Group.objects.get(group_number = group)
     GroupLessonObjList = Group_Lesson.objects.filter(group = GroupObj)
-    LessonObjList = Lesson.objects.filter(id__in = GroupLessonObjList.values("lesson"))
-
-    # attendance = Attendance.objects.filter(student = student_id)
+    LessonObjList = Lesson.objects.filter(id__in = GroupLessonObjList.values("lesson"), date__range = (start_date, end_date))
     attendance = Attendance.objects.filter(student = student_id).values_list("lesson", flat = True)
  
     lessons = []
@@ -153,8 +117,16 @@ def students(request, faculty, group, student_id):
                         "aud" : l.auditorium.aud_number,
                         "build" : l.auditorium.building.build_name,
                         "status" : status})
-    
-    return render(request, 'website/student.html', context = {"lessons" : lessons})
+
+    urls = {"week" : f"{student_id}?week",
+            "month" : f"{student_id}?month",
+            "year" : f"{student_id}?year"}
+
+
+    return render(request, 'website/student.html', context = {"lessons" : lessons, 
+                                                              "fullname_and_group" : fullname_and_group,
+                                                              "urls" : urls})
+
 
 
 
@@ -177,22 +149,18 @@ def buildings(request, building):
         auditoriums[aud.aud_number] = [None] * (7*6)
         
         for less in LessonObjList:
-            auditoriums[aud.aud_number][datetime.weekday(less.date)*7 + less.lesson_number - 1] = {"name": less.lesson_name, 
-                                                               "url": f"{building}/auditoriums/{aud.aud_number}/date/{less.date}/index/{less.lesson_number}"}
+            auditoriums[aud.aud_number][datetime.weekday(less.date)*7 + less.lesson_number - 1] = {
+                                                                "name": less.abbreviation, 
+                                                                "url": f"{building}/auditoriums/{aud.aud_number}/date/{less.date}/index/{less.lesson_number}"}
 
+    building_name = BuildObj.fullname
 
-    return render(request, 'website/building.html', context = {"auditoriums" : auditoriums})
+    return render(request, 'website/building.html', context = {"auditoriums" : auditoriums,
+                                                               "fullname" : building_name})
 
 
 
 def lessons(request, building, auditorium, date, index):
-    # if kwargs['building'] == 'ulk':
-    #     if kwargs['auditorium'] == '403':
-    #         if kwargs['date'] == '2019.05.05':
-    #             if kwargs['index'] == 1:
-    #                 return render(request, 'website/attendance_all.html')
-    # return HttpResponseNotFound('<h1>Такой пары не существует</h1>')
-
     BuildObj = Building.objects.get(latin_name = building)
     AuditoriumObj = Auditorium.objects.get(building_id = BuildObj.id, aud_number = auditorium)
     #TODO: проверить конвертацию даты при запросе у моделей 
@@ -212,10 +180,16 @@ def lessons(request, building, auditorium, date, index):
                          "group" : st.group.group_number,
                          "status" : status})
 
-    return render(request, 'website/lesson.html', context = {"students" : students})
+    #TODO: локализовать дату
 
+    lesson = {"name" : LessonObj.lesson_name,
+              "professor" : mu.getFullName(LessonObj.professor),
+              "aud" : LessonObj.auditorium.aud_number,
+              "build" : LessonObj.auditorium.building.build_name,
+              "date" : LessonObj.date}
 
-
-
-
-        
+    return render(request, 'website/lesson.html', context = {"students" : students,
+                                                             "lesson" : lesson})
+ 
+def login(request):
+    return render(request, 'website/login.html')
