@@ -19,6 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from . import views
 import datagate.views
+import integration.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,4 +33,6 @@ urlpatterns = [
     path('buildings/<str:building>/auditoriums/<str:auditorium>/date/<str:date>/index/<int:index>', views.lessons),
     
     path('dategate', datagate.views.lowlevel),
+
+    path('run_integration', integration.views.Integration.as_view())
 ]
