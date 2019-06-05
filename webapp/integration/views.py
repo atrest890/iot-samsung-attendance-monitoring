@@ -76,7 +76,8 @@ class Integration(View):
                     g, cr = wm.Group.objects.get_or_create(group_number=group['group_number'], course=course, faculty=f)
                     print('\t\t', g.group_number, 'created' if cr else 'existed')
                     print('\t\t\tStudent:')
-                    for i in range(random.randint(5, 15)):
+                    # for i in range(random.randint(5, 15)):
+                    for i in range(7):
                         surname, name, patronymic, identifier = self.__tusurGenStudent(f.latin_name, g.group_number, i)
                         s, cr = wm.Student.objects.get_or_create(surname=surname, name=name, patronymic=patronymic, identifier=identifier, group=g)
                         print(f'\t\t\t{i}:', s.surname, s.name, s.patronymic, s.identifier, 'created' if cr else 'existed')
@@ -88,9 +89,9 @@ class Integration(View):
             print(fullname, 'created' if cr else 'existed')
 
 
-        print('Building...')
+        print('Building...', buildings)
         for building in buildings:
-            b, cr = wm.Building.objects.get_or_create(build_name=building['build_name'], latin_name=building['latin_name'])
+            b, cr = wm.Building.objects.get_or_create(build_name=building['build_name'], latin_name=building['latin_name'], fullname=building['fullname'])
             print(b.build_name, 'created' if cr else 'existed')
             print('\tAuditoriums...')
             for aud in building['audiences']:
@@ -103,7 +104,8 @@ class Integration(View):
                                                             date=less['date'], 
                                                             lesson_number=less['lesson_number'], 
                                                             professor=professors[less['professor']]['obj'],
-                                                            auditorium=auditorium)
+                                                            auditorium=auditorium,
+                                                            abbreviation=self.__tusurGetAbbrLesson(less['lesson_name']))
                 print('\t', l_obj.lesson_name, 'created' if cr else 'existed')
                 print('\t\tGroup lessons...')
                 for group in less['groups']:
@@ -162,6 +164,13 @@ class Integration(View):
         patr = f"p_{faculty}_{group}"
 
         return (surname, name, patr, hashlib.md5((surname+name+patr).encode()).hexdigest())
+
+    def __tusurGetAbbrLesson(self, lesson):
+        res = ""
+        for part in lesson.split(' '):
+            if part[0].isalpha():
+                res += part[0]
+        return res
 
     def __tusurGetBeginDateByWeekId(self, week_id):
         dw = self._currweek_id - week_id
@@ -264,7 +273,8 @@ class Integration(View):
             res.append({
                 'original_url' : a.attrib['href'],
                 'latin_name' : a.attrib['href'].split('/')[-1],
-                'build_name' : name,
+                'fullname' : name,
+                'build_name' : a.text.upper(),
                 'audiences' : auds
             })
             print('Building found:', res[-1])
