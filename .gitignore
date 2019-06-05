@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 
 # django
-*/migrations/*
+**/migrations/*
 
 # txt
 names.txt
