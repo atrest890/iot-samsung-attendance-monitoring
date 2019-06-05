@@ -29,6 +29,7 @@ class Student(models.Model):
     name = models.CharField(max_length = 50)
     patronymic = models.CharField(max_length = 50)
     group = models.ForeignKey(Group, on_delete = models.CASCADE, default = "")
+    identifier = models.CharField(max_length = 32, unique = True, default = "0de8ddf24fd4424e2a0d29a21de4880e")
 
 
 class Professor(models.Model):
