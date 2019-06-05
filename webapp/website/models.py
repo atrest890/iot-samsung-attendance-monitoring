@@ -1,5 +1,5 @@
 from django.db import models
- 
+import django.contrib.auth.models as auth_model
 
 class Building(models.Model):
     build_name = models.CharField(max_length = 10, unique = True)
@@ -33,9 +33,11 @@ class Student(models.Model):
 
 
 class Professor(models.Model):
+    # TODO: разобраться с именами в моделях, ибо в user уже есть поля first_name и last_name
     surname = models.CharField(max_length = 50)
     name = models.CharField(max_length = 50)
     patronymic = models.CharField(max_length = 50)
+    account = models.OneToOneField(auth_model.User, on_delete=models.CASCADE)
 
 
 

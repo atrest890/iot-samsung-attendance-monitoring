@@ -1,6 +1,5 @@
 from website.models import Student, Group
-
-
+import django.contrib.auth.models as auth_model
 
 def getFullNameAndGroup(st):
     g = Group.objects.get(id = st.group_id)
@@ -16,3 +15,17 @@ def get_if_exists(model, **kwargs):
     except model.DoesNotExist:  # Be explicit about exceptions
         obj = None
     return obj
+
+def getAccauntName(user):
+    full = user.get_full_name()
+    if full == '':
+        return user.username
+    return full
+
+def isAccauntInProfessorsGroup(user):
+    # TODO: по хорошему надо вынести эти все литералы
+    return len(user.groups.filter(name='Преподаватели')) != 0
+
+def isAccauntInDeaneryGroup(user):
+    # TODO: по хорошему надо вынести эти все литералы
+    return len(user.groups.filter(name='Деканат')) != 0

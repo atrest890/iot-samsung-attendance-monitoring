@@ -1,7 +1,10 @@
 from django.views import View
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import render, redirect
+import django.contrib.auth as auth
 
 import website.models as wm
+import website.model_utils as wm_utils
 import requests as r
 import random
 import hashlib
@@ -16,18 +19,23 @@ class Periods(Enum):
     EXAM_SESSION = 2
     UNKNOWN = 3
 
+def integrationPreview(request):
+    return render(request, "integration/integration.html")
+
 class Integration(View):
 
     def get(self, request):
         try:
+            if not request.user.is_authenticated or not wm_utils.isAccauntInDeaneryGroup(request.user):
+                return HttpResponseForbidden('Только деканат может запускать интеграцию')
 
             self.__tusur()
 
-            return HttpResponse('done')
+            return render(request, "integration/integration_info.html", context={'message' : 'Интеграция завершена'})
         except Exception:
             print("Integration ERROR!")
             print_exc()
-            return HttpResponse('error')
+            return render(request, "integration/integration_info.html", context={'error' : 'Интеграция завершилась с ошибкой'})
 
     def __tusurExcaptionOnNot200(self, ans):
         if ans.status_code != 200:
@@ -83,8 +91,17 @@ class Integration(View):
                         print(f'\t\t\t{i}:', s.surname, s.name, s.patronymic, s.identifier, 'created' if cr else 'existed')
 
         print('Professors...')
+        wm.auth_model.Group.objects.get_or_create(name='Деканат')
+        dj_gr, cr = wm.auth_model.Group.objects.get_or_create(name='Преподаватели')
         for fullname, prof in professors.items():
-            p, cr = wm.Professor.objects.get_or_create(surname=prof['surname'], name=prof['name'], patronymic=prof['patronymic'])
+            # TODO: почти костыль, ибо у нас есть отчества, поэтому для идентификации будем использовать last_name
+            username = self.__tusurGetUsernameProfessor(fullname)
+            u, cr = wm.auth_model.User.objects.get_or_create(last_name=fullname, first_name='', username=username)
+            print('Account', username, 'created' if cr else 'existed')
+            u.set_password('1234')
+            u.groups.add(dj_gr)
+            u.save()
+            p, cr = wm.Professor.objects.get_or_create(surname=prof['surname'], name=prof['name'], patronymic=prof['patronymic'], account=u)
             prof['obj'] = p
             print(fullname, 'created' if cr else 'existed')
 
@@ -147,6 +164,9 @@ class Integration(View):
 
         iso = datetime.today().isocalendar()
         self._currweek_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-1', '%Y-%W-%w')
+
+    def __tusurGetUsernameProfessor(self, fullname):
+        return fullname.replace(' ', '_').replace(',', '_')
 
     def __tusurSplitProfessor(self, fullname):
         # Surname N.P.

@@ -25,15 +25,20 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     path('', views.index),
-    path('header.html', views.header),
-    path('login', views.login),
+    path('header.html', views.header, name='website-header'),
     path('faculties/<str:faculty>', views.faculties),
     path('faculties/<str:faculty>/groups/<str:group>', views.groups),
     path('faculties/<str:faculty>/groups/<str:group>/students/<str:student_id>', views.students),
     path('buildings/<str:building>', views.buildings),
     path('buildings/<str:building>/auditoriums/<str:auditorium>/date/<str:date>/index/<int:index>', views.lessons),
     
+    path('login', views.Login.as_view()),
+    path('logout', views.logout),
+
+    # path('lector', views.Lector.as_view()),
+
     path('dategate', datagate.views.lowlevel),
 
+    path('integration', integration.views.integrationPreview),
     path('run_integration', integration.views.Integration.as_view())
 ]

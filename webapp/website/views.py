@@ -1,9 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseNotFound
+from django.views import View
+import django.contrib.auth as auth
+
 from website.models import Student, Faculty, Auditorium, Building, Group, Group_Lesson, Lesson, Professor, Attendance
-import cyrtranslit
 import website.model_utils as mu
+
+import cyrtranslit
 from datetime import datetime, date, timedelta
+
 
 def index(request): 
     return render(request, 'website/index.html')
@@ -28,8 +33,13 @@ def header(request):
         latin_name = obj.latin_name
         buildings[name] = f"/buildings/{latin_name}"
 
+    acc = {'fullname': '', 'profile_url' : '#' }
+    if request.user.is_authenticated:
+        acc['fullname'] = mu.getAccauntName(request.user)
+
     return render(request, 'website/header.html', context = {"faculties" : faculties, 
-                                                             "buildings" : buildings})
+                                                             "buildings" : buildings,
+                                                             "acc" : acc})
 
 
 
@@ -191,5 +201,31 @@ def lessons(request, building, auditorium, date, index):
     return render(request, 'website/lesson.html', context = {"students" : students,
                                                              "lesson" : lesson})
  
-def login(request):
-    return render(request, 'website/login.html')
+
+class Login(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('/')
+        return render(request, 'website/login.html')
+
+    def post(self, request):
+        username = request.POST['username']
+        password = request.POST['password']
+        user = auth.authenticate(request, username=username, password=password)
+        if user is not None:
+            auth.login(request, user)
+            # print(mu.isAccauntInProfessorsGroup(user))
+            # print(mu.isAccauntInDeaneryGroup(user))
+            # print(user.professor.surname)
+            # print(user.professor.name)
+            # print(user.professor.patronymic)
+            return redirect('/')
+        else:
+            return render(request, 'website/login.html', context={'error_msg': 'Упс... неправильное имя пользователя или пароль'})
+
+def logout(request):
+    auth.logout(request)
+    return redirect('/')
+
+
+    
