@@ -58,7 +58,9 @@ def faculties(request, faculty):
         urls[group_number] = f"/faculties/{faculty}/groups/{group_number}"
         all_groups[course].append({"number" : group_number, "url" : urls[group_number]})
             
-    return render(request, 'website/faculty.html', context = { "all_groups" : all_groups })
+    faculty_name = FacultyObj.faculty_name        
+    return render(request, 'website/faculty.html', context = {"all_groups" : all_groups,
+                                                              "faculty_name" : faculty_name})
 
 
 
@@ -78,6 +80,7 @@ def groups(request, faculty, group):
     for st in StudentObjList:
         fullname = f"{st.surname} {st.name} {st.patronymic}"
         students[fullname] = f"/faculties/{faculty}/groups/{group}/students/{st.id}"
+
 
     return render(request, 'website/group.html', context = {"students" : students,
                                                             "group" : group_number})
@@ -190,8 +193,6 @@ def lessons(request, building, auditorium, date, index):
                          "url_group" : f"/faculties/{st.group.faculty.latin_name}/groups/{st.group.group_number}",
                          "group" : st.group.group_number,
                          "status" : status})
-
-    #TODO: локализовать дату
 
     lesson = {"name" : LessonObj.lesson_name,
               "professor" : mu.getFullName(LessonObj.professor),
