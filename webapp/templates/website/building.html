@@ -79,7 +79,7 @@
                   {% if lesson == None%}
                       <td> </td>
                   {% else %}
-                      <td><a data-toggle="tooltip" data-placement="top" title="Tooltip on top" href={{lesson.url}}>{{lesson.name}}</a></td>
+                      <td><a data-toggle="tooltip" data-placement="top" title="{{lesson.lesson_name}}" href={{lesson.url}}>{{lesson.name}}</a></td>
                   {% endif %}
               {% endfor %}
           </tr>

@@ -161,7 +161,8 @@ def buildings(request, building):
         for less in LessonObjList:
             auditoriums[aud.aud_number][datetime.weekday(less.date)*7 + less.lesson_number - 1] = {
                                                                 "name": less.abbreviation, 
-                                                                "url": f"{building}/auditoriums/{aud.aud_number}/date/{less.date}/index/{less.lesson_number}"}
+                                                                "url": f"{building}/auditoriums/{aud.aud_number}/date/{less.date}/index/{less.lesson_number}",
+                                                                "lesson_name" : less.lesson_name}
 
     building_name = BuildObj.fullname
 
