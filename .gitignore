@@ -8,13 +8,8 @@ __pycache__/
 # txt
 names.txt
 
-# pictures
-*.jpeg
-*.jpg
-*.png
-
 # vscode files
 .vscode
 
 #db
-db.sqlite3
+webapp/db.sqlite3

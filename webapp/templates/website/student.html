@@ -18,6 +18,9 @@
         <a class="btn btn-secondary" href="{{urls.month}}" role="button">За месяц</a>
         <a class="btn btn-secondary" href="{{urls.year}}" role="button">За год</a>
         <a class="btn btn-secondary" href="#" role="button">За период...</a>
+        <input class="form-control form-control-lg" type="date" placeholder="с" style="width: 200px; margin-left: 30px;">
+        <input class="form-control form-control-lg" type="date" placeholder="по" style="width: 200px; margin-left: 30px; margin-right: 30px;">
+        <a class="btn btn-secondary" href="#" role="button">Подтвердить</a>
       </div>
     </div>
 
@@ -49,11 +52,44 @@
                      </select>
                 </td>
            </tr> -->
+<!-- 
+           {% if user.is_authenticated %}
+
+            <table class = "table table-bordered">
+              <thead>
+              <thead class="thead-dark">
+                <tr>
+                <th scope="col">Дата</th>
+                <th scope="col">Предмет</th>
+                <th scope="col">№ номер кабинета</th>
+                <th scope="col">Корпус</th>
+                <th scope="col">Присутствие</th>
+                </tr>
+                </div>
+                </thead>
+                
+              <tbody>
+
+            <tr>
+                <td scope="row">{{l.date}}</td>
+                <td><a href="{{l.lesson_url}}">{{l.name}}</a></td>
+                <td>{{l.aud}}</td>
+                <td>{{l.build}}</td>
+                {% if l.status == "Был" %}
+                  <td style="background: #1DFE3F;">{{l.status}}</td>
+                {% elif l.status == "Не был" %}
+                  <td style="background: #FE6264;">{{l.status}}</td>
+                {% else %}
+                  <td style="background: #F5FE62;">{{l.status}}</td>
+                {% endif %}
+            </tr>
+           {% endif %} -->
+           
 
            {% for l in lessons %}
                <tr>
                   <td scope="row">{{l.date}}</td>
-                  <td>{{l.name}}</td>
+                  <td><a href="{{l.lesson_url}}">{{l.name}}</a></td>
                   <td>{{l.aud}}</td>
                   <td>{{l.build}}</td>
                   {% if l.status == "Был" %}

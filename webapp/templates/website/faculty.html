@@ -11,22 +11,27 @@
 <body>
     <div id="header"></div>
 
-    <!-- TODO: ДОБАВИТЬ НАДПИСЬ ФАКУЛЬТЕТА -->
-
-    {% for course, groups in all_groups.items %}    
-    <div class = "panel panel-default">
-            <div class = "panel-heading">
-                {{course}} курс
-            </div>
-        
-            <div class = "panel-body">
-            {% for group in groups %}
-                <a class="group-number" href={{group.url}}>{{group.number}}</a>
-            {% endfor %}
-            </div>
-    </div>
-    {% endfor %}
-
+    <h2>{{faculty_name}}</h2>
+    <table class = "table table-borderless">
+            {% for course, groups in all_groups.items %}
+            <thead>
+                <thead class="thead-dark">
+                <tr>
+                    <th style="text-align: left">{{course}} курс</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                    <tr>
+                        <td style="text-align: left; margin-right: 40px">
+                        {% for group in groups %}
+                            <a href="{{group.url}}" style="margin-right: 40px">{{group.number}}</a>
+                        {% endfor %}
+                        </td>       
+                    </tr>        
+            </tbody>   
+            {% endfor %}     
+    </table>
 
     <script src="/static/3rd-party/jquery-3.4.0.min.js"></script>
     <script src="/static/3rd-party/popper-1.14.7.min.js"></script>
