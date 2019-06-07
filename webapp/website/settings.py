@@ -25,7 +25,7 @@ SECRET_KEY = '5mci1uu@v@c=vazlmqyr1q-4mdds6-nok7b*h$5bq#h5@pw6&d'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ '192.168.43.193', '*' ]
 
 
 # Application definition
@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'website',
     'datagate.apps.DatagateConfig',
     'integration',
-    'chartjs'
 ]
 
 MIDDLEWARE = [
