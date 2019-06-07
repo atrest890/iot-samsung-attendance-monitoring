@@ -75,9 +75,16 @@ class Integration(View):
 
         print("\n\nFilling database...\n\n")
         print('Faculty...')
+        decan_gr, cr = wm.auth_model.Group.objects.get_or_create(name='Деканат')
         for fac in facs:
-            f, cr = wm.Faculty.objects.get_or_create(faculty_name=fac['faculty_name'], latin_name=fac['latin_name'])
+            print("DEBIG", self.__getShortFaculty(fac['faculty_name']))
+            f, cr = wm.Faculty.objects.get_or_create(faculty_name=fac['faculty_name'], latin_name=fac['latin_name'], short_name=self.__getShortFaculty(fac['faculty_name']))
             print(f.faculty_name, 'created' if cr else 'existed')
+
+            u = self.__createUser('Деканат ' + f.short_name, decan_gr)
+            d, cr = wm.Deanery.objects.get_or_create(faculty=f, account=u)
+            print('Деканат', d.faculty.short_name , 'created' if cr else 'existed')
+
             for course, groups in enumerate(fac['groups'], start=1):
                 print(f'\tCourse {course}...')
                 for group in groups:
@@ -91,16 +98,11 @@ class Integration(View):
                         print(f'\t\t\t{i}:', s.surname, s.name, s.patronymic, s.identifier, 'created' if cr else 'existed')
 
         print('Professors...')
-        wm.auth_model.Group.objects.get_or_create(name='Деканат')
-        dj_gr, cr = wm.auth_model.Group.objects.get_or_create(name='Преподаватели')
+        professor_gr, cr = wm.auth_model.Group.objects.get_or_create(name='Преподаватели')
         for fullname, prof in professors.items():
             # TODO: почти костыль, ибо у нас есть отчества, поэтому для идентификации будем использовать last_name
-            username = self.__tusurGetUsernameProfessor(fullname)
-            u, cr = wm.auth_model.User.objects.get_or_create(last_name=fullname, first_name='', username=username)
-            print('Account', username, 'created' if cr else 'existed')
-            u.set_password('1234')
-            u.groups.add(dj_gr)
-            u.save()
+            u = self.__createUser(fullname, professor_gr)
+
             p, cr = wm.Professor.objects.get_or_create(surname=prof['surname'], name=prof['name'], patronymic=prof['patronymic'], account=u)
             prof['obj'] = p
             print(fullname, 'created' if cr else 'existed')
@@ -165,7 +167,30 @@ class Integration(View):
         iso = datetime.today().isocalendar()
         self._currweek_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-1', '%Y-%W-%w')
 
-    def __tusurGetUsernameProfessor(self, fullname):
+    def __getShortFaculty(self, name):
+        if name.lower() == 'радиотехнический факультет':
+            return 'РТФ'
+        elif name.lower() == 'радиоконструкторский факультет':
+            return 'РКФ'
+        elif name.lower() == 'аспирантура':
+            return name
+
+        res = ""
+        for part in name.split(' '):
+            res += part[0]
+        return res.upper()
+
+
+    def __createUser(self, fullname, group):
+        username = self.__tusurGetUsername(fullname)
+        u, cr = wm.auth_model.User.objects.get_or_create(last_name=fullname, first_name='', username=username)
+        print('Account', username, 'created' if cr else 'existed')
+        u.set_password('1234')
+        u.groups.add(group)
+        u.save()
+        return u
+
+    def __tusurGetUsername(self, fullname):
         return fullname.replace(' ', '_').replace(',', '_')
 
     def __tusurSplitProfessor(self, fullname):
@@ -188,7 +213,9 @@ class Integration(View):
     def __tusurGetAbbrLesson(self, lesson):
         res = ""
         for part in lesson.split(' '):
-            if part[0].isalpha():
+            if part[0].isalpha() and '(' not in part and ')' not in part:
+                if len(part) > 2:
+                    part = part.upper()
                 res += part[0]
         return res
 

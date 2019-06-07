@@ -15,6 +15,7 @@ class Auditorium(models.Model):
 class Faculty(models.Model):
     faculty_name = models.CharField(max_length = 5, unique = True)
     latin_name = models.CharField(max_length = 5, unique = True, default = "")
+    short_name = models.CharField(max_length = 40, unique = True)
 
 
 class Group(models.Model):
@@ -39,7 +40,10 @@ class Professor(models.Model):
     patronymic = models.CharField(max_length = 50)
     account = models.OneToOneField(auth_model.User, on_delete=models.CASCADE)
 
-
+# TODO: мб стоит наследовать User?
+class Deanery(models.Model):
+    faculty = models.ForeignKey(Faculty, on_delete = models.CASCADE)
+    account = models.OneToOneField(auth_model.User, on_delete=models.CASCADE)
 
 class Lesson(models.Model):
     lesson_name = models.CharField(max_length = 40)

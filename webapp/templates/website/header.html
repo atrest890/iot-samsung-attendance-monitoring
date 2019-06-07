@@ -34,9 +34,13 @@
                       <b>{{acc.fullname}}</b>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href={{acc.profile_url}}>Кабинет</a>
-                        <a class="dropdown-item" href="dean">Форма редактирования</a>
-                        <a class="dropdown-item" href="/logout"><span class="#"></span> Выход из системы</a>
+                        {% if acc.prof_url %}
+                            <a class="dropdown-item" href={{acc.prof_url}}>Кабинет</a>
+                        {% endif %}
+                        {% if acc.dean_url %}
+                        <a class="dropdown-item" href="{{acc.dean_url}}">Форма редактирования</a>
+                        {% endif %}
+                        <a class="dropdown-item" href="/logout">Выход из системы</a>
                     </div>
                 </li>
             {% else %}
