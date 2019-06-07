@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, HttpResponse
 from django.views import View
 import django.contrib.auth as auth
 
@@ -10,10 +10,31 @@ import cyrtranslit
 from datetime import datetime, date, timedelta
 
 
+def getdateFromDatepick(req) -> tuple:
+    #TODO: добавить за весь период
+    today = date.today()
+    if 'month' in req.GET:
+        month = today.month
+        year = today.year
+        start_date = datetime(year, month, 1)
+        end_date = today
+
+    elif 'year' in req.GET:
+        year = today.year
+        if datetime.today().month < 9:
+            year -= 1
+        start_date = datetime(year, 9, 1)
+        end_date = today
+
+    else:
+        iso = datetime.today().isocalendar()
+        start_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-1', '%Y-%W-%w')
+        end_date = today
+
+    return start_date, end_date
+
 def index(request): 
     return render(request, 'website/index.html')
-
-
 
 def header(request):
     FacultyObjList = Faculty.objects.all()
@@ -34,14 +55,14 @@ def header(request):
         latin_name = obj.latin_name
         buildings[name] = f"/buildings/{latin_name}"
 
-    acc = {'fullname': '', 'profile_url' : '#' }
+    acc = {'fullname': ''}
     if request.user.is_authenticated:
         acc['fullname'] = mu.getAccauntName(user)
 
         if mu.isAccauntInProfessorsGroup(user):
-            acc['profile_url'] = '/professor'
+            acc['prof_url'] = '/professor'
         if mu.isAccauntInDeaneryGroup(request.user):
-            acc['profile_url'] = '/dean'
+            acc['dean_url'] = '/dean'
 
     return render(request, 'website/header.html', context = {"faculties" : faculties, 
                                                              "buildings" : buildings,
@@ -79,7 +100,7 @@ def groups(request, faculty, group):
     if not FacultyObj and not GroupObj:
         return HttpResponseNotFound('<h1>Такой группы не существует</h1>')
 
-    StudentObjList = Student.objects.filter(group = GroupObj.id)
+    StudentObjList = Student.objects.filter(group = GroupObj.id).order_by('surname', 'name')
     students = {}
 
     group_number = Group.objects.get(group_number = group).group_number
@@ -97,39 +118,18 @@ def students(request, faculty, group, student_id):
     StudentObj = Student.objects.get(id = student_id)
     fullname_and_group = mu.getFullNameAndGroup(StudentObj)
 
-    #TODO: добавить за весь период
-
-    today = date.today()
-    if 'month' in request.GET:
-        month = today.month
-        year = today.year
-        start_date = datetime(year, month, 1)
-        end_date = today
-
-    elif 'year' in request.GET:
-        year = today.year
-        if datetime.today().month < 9:
-            year -= 1
-        start_date = datetime(year, 9, 1)
-        end_date = today
-
-    else:
-        iso = datetime.today().isocalendar()
-        start_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-1', '%Y-%W-%w')
-        end_date = today
-        
+    date_range = getdateFromDatepick(request)
 
     GroupObj = Group.objects.get(group_number = group)
     GroupLessonObjList = Group_Lesson.objects.filter(group = GroupObj)
-    LessonObjList = Lesson.objects.filter(id__in = GroupLessonObjList.values("lesson"), date__range = (start_date, end_date))
+    LessonObjList = Lesson.objects.filter(id__in = GroupLessonObjList.values("lesson"), date__range = date_range).order_by('date', 'lesson_number')
     attendance = Attendance.objects.filter(student = student_id).values_list("lesson", flat = True)
  
     lessons = []
     for l in LessonObjList:
         status = "Не был"
-        # TODO: а где другие статусы из Attendance.status ?
         if l.id in attendance:
-            status = "Был"
+            status = attendance.status
 
         lessons.append({"date" : l.date,
                         "name" : l.lesson_name,
@@ -187,7 +187,7 @@ def lessons(request, building, auditorium, date, index):
     #TODO: проверить конвертацию даты при запросе у моделей 
     LessonObj = Lesson.objects.get(lesson_number = index, auditorium_id = AuditoriumObj.id, date = date)
     GroupLessonSet = Group_Lesson.objects.filter(lesson_id = LessonObj.id)
-    StudentObjList = Student.objects.filter(group__in = GroupLessonSet.values("group"))
+    StudentObjList = Student.objects.filter(group__in = GroupLessonSet.values("group")).order_by('group__group_number', 'surname', 'name')
 
     students = []
     for st in StudentObjList:
@@ -214,26 +214,9 @@ def lessons(request, building, auditorium, date, index):
 def professors_lessons(request):
     ProfessorObj = request.user.professor
 
-    today = date.today()
-    if 'month' in request.GET:
-        month = today.month
-        year = today.year
-        start_date = datetime(year, month, 1)
-        end_date = today
+    date_range = getdateFromDatepick(request)
 
-    elif 'year' in request.GET:
-        year = today.year
-        if datetime.today().month < 9:
-            year -= 1
-        start_date = datetime(year, 9, 1)
-        end_date = today
-
-    else:
-        iso = datetime.today().isocalendar()
-        start_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-1', '%Y-%W-%w')
-        end_date = today
-
-    LessonObjList = Lesson.objects.filter(professor = ProfessorObj.id, date__range=(start_date, end_date))
+    LessonObjList = Lesson.objects.filter(professor = ProfessorObj.id, date__range=date_range).order_by('date', 'lesson_number')
     
     lessons = []
     for less in LessonObjList:  
@@ -253,18 +236,16 @@ def professors_lessons(request):
                                                                       "urls" : urls})
         
 
-def dean(request):
-    DeanObj = request.user.deanery
-    # LessonObjList = Lesson.objects.filter(professor_id = ProfessorObj.id)
-    
-    lessons = []
-    for less in LessonObjList:  
-        lessons.append({"name" : less.lesson_name,
-                        "date" : less.date,
-                        "build" : less.building_id.build_name,
-                        "aud" : less.auditoium_id.aud_number})
+class Dean(View):
+    def get(self, request):
+        user = request.user
+        if not mu.isAccauntInDeaneryGroup(user):
+            return redirect('/login')
 
-    return render(request, 'website/dean.html', context={"lessons" : lessons})
+        return render(request, 'website/dean.html', context={})
+
+    def post(self, request):
+        return HttpResponse('OK')
 
 
 class Login(View):

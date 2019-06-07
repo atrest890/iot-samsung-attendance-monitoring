@@ -35,9 +35,8 @@ urlpatterns = [
     path('login', views.Login.as_view()),
     path('logout', views.logout),
 
-    # path('lector', views.Lector.as_view()),
     path('professor', views.professors_lessons),
-    path('dean', views.dean),
+    path('dean', views.Dean.as_view()),
 
     path('dategate', datagate.views.lowlevel),
 
