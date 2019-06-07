@@ -13,35 +13,73 @@
     <div id="header"></div>
 
     <h2>{{lesson.name}} {{lesson.date}} {{lesson.aud}} ауд. {{lesson.build}}, {{lesson.professor}}</h2>
-         <table class = "table table-bordered">
-            <thead>
-            <thead class="thead-dark">
-               <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">ФИО студента</th>
-                  <th scope="col">№ группы</th>
-                  <th scope="col">Присутствие</th>
-               </tr>
-            </thead>
-            {%for student in students%}
-               <tr>
-                  <td scope="row">{{forloop.counter}}</td>
-                  <td><a href={{student.url_student}}>{{student.fullname}}</a></td>
-                  <td><a href={{student.url_group}}>{{student.group}}</a></td>
-                  {% if student.status == "Был" %}
-                     <td style="background: #1DFE3F;">{{student.status}}</td>
-                  {% elif student.status == "Не был" %}
-                     <td style="background: #FE6264;">{{student.status}}</td>
-                  {% else %}
-                     <td style="background: #F5FE62;">{{student.status}}</td>
-                  {% endif %}
-               </tr>
-            {% endfor %}
-         </table>
+   <table class = "table table-bordered">
+      <thead>
+      <thead class="thead-dark">
+         <tr>
+            <th scope="col">#</th>
+            <th scope="col">ФИО студента</th>
+            <th scope="col">№ группы</th>
+            <th scope="col">Присутствие</th>
+            {% if allowed_edit == True %}
+               <th scope="col switch-col dropdown">
+                  <div class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                     Выбрать действие
+                  </div>
+                  <div class="dropdown-menu dropdown-menu-right">
+                     <h6 class="dropdown-header">Изменить данные</h6>
+                     <a class="dropdown-item" type="button" href="#" onclick="groupEdit('1')">Выбранные были</a>
+                     <a class="dropdown-item" type="button" href="#" onclick="groupEdit('2')">Выбранные не были</a>
+                     <a class="dropdown-item" type="button" href="#" onclick="groupEdit('3')">Выбранные не были (по ув. прич.)</a>
+                     <h6 class="dropdown-header">Опции выбора</h6>
+                     <a class="dropdown-item" type="button" href="#" onclick="selectAll()">Выбрать всё</a>
+                     <a class="dropdown-item" type="button" href="#" onclick="deselectAll()">Забыть выбранное</a>
+                  </div>
+               </th>
+            {% endif %}
+         </tr>
+      </thead>
+      {% for student in students %}
+         <tr>
+            <td scope="row">{{forloop.counter}}</td>
+            <td><a href={{student.url_student}}>{{student.fullname}}</a></td>
+            <td><a href={{student.url_group}}>{{student.group}}</a></td>
+            {% if allowed_edit == True %}
+               <td class="color-attendance">
+                  <select class="custom-select select-disable-border" name={{student.id}} id={{student.id_att}} autocomplete="off">
+                     <option value="1" {% if student.status == "Был" %} selected {% endif %}>Был</option>
+                     <option value="2" {% if student.status == "Не был" %} selected {% endif %}>Не был</option>
+                     <option value="3" {% if student.status == "Не был (ув. прич.)" %} selected {% endif %}>Не был (ув. прич.)</option>
+                  </select>
+               </td>
+               <td>
+                  <label class="switch">
+                     <input type="checkbox" class="default group-edit" name={{student.id}} id={{student.id_att}} autocomplete="off">
+                     <span class="slider"></span>
+                   </label>
+               </td>
+            {% else %}
+               {% if student.status == "Был" %}
+                  <td class="color-attendance-1">
+               {% elif student.status == "Не был" %}
+                  <td class="color-attendance-2">
+               {% else %}
+                  <td class="color-attendance-3">
+               {% endif %}
+                     {{student.status}}</td>
+            {% endif %}
+         </tr>
+      {% endfor %}
+   </table>
+
+   <div id="alert_placeholder"></div>
 
     <script src="/static/3rd-party/jquery-3.4.0.min.js"></script>
     <script src="/static/3rd-party/popper-1.14.7.min.js"></script>
     <script src="/static/3rd-party/bootstrap-4.3.1.min.js"></script>
+
+    <script src="/static/js/alert.js"></script>
     <script src="/static/js/include-head.js"></script>
+    <script src="/static/js/editing.js"></script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseNotFound, HttpResponse
+from django.http import HttpResponseNotFound, HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.views import View
 import django.contrib.auth as auth
 
@@ -7,7 +7,10 @@ from website.models import Student, Faculty, Auditorium, Building, Group, Group_
 import website.model_utils as mu
 
 import cyrtranslit
+import json
 from datetime import datetime, date, timedelta
+from traceback import print_exc
+
 
 
 def getdateFromDatepick(req) -> tuple:
@@ -123,20 +126,24 @@ def students(request, faculty, group, student_id):
     GroupObj = Group.objects.get(group_number = group)
     GroupLessonObjList = Group_Lesson.objects.filter(group = GroupObj)
     LessonObjList = Lesson.objects.filter(id__in = GroupLessonObjList.values("lesson"), date__range = date_range).order_by('date', 'lesson_number')
-    attendance = Attendance.objects.filter(student = student_id).values_list("lesson", flat = True)
+    # attendance = Attendance.objects.filter(student = student_id).values_list("lesson", flat = True)
+    attendance = Attendance.objects.filter(student = student_id)
  
     lessons = []
-    for l in LessonObjList:
+    for less in LessonObjList:
         status = "Не был"
-        if l.id in attendance:
-            status = attendance.status
+        att = attendance.filter(lesson=less)
+        if len(att) == 1:
+            status = att[0].status
+        elif len(att) > 1:
+            raise Exception('Ошибка реализации, несколько записей посещаемости')
 
-        lessons.append({"date" : l.date,
-                        "name" : l.lesson_name,
-                        "aud" : l.auditorium.aud_number,
-                        "build" : l.auditorium.building.build_name,
+        lessons.append({"date" : less.date,
+                        "name" : less.lesson_name,
+                        "aud" : less.auditorium.aud_number,
+                        "build" : less.auditorium.building.build_name,
                         "status" : status,
-                        "lesson_url" : f"/buildings/{l.auditorium.building.latin_name}/auditoriums/{l.auditorium.aud_number}/date/{l.date}/index/{l.lesson_number}"})
+                        "lesson_url" : f"/buildings/{less.auditorium.building.latin_name}/auditoriums/{less.auditorium.aud_number}/date/{less.date}/index/{less.lesson_number}"})
 
     urls = {"week" : f"{student_id}?week",
             "month" : f"{student_id}?month",
@@ -181,35 +188,88 @@ def buildings(request, building):
 
 
 
-def lessons(request, building, auditorium, date, index):
-    BuildObj = Building.objects.get(latin_name = building)
-    AuditoriumObj = Auditorium.objects.get(building_id = BuildObj.id, aud_number = auditorium)
-    #TODO: проверить конвертацию даты при запросе у моделей 
-    LessonObj = Lesson.objects.get(lesson_number = index, auditorium_id = AuditoriumObj.id, date = date)
-    GroupLessonSet = Group_Lesson.objects.filter(lesson_id = LessonObj.id)
-    StudentObjList = Student.objects.filter(group__in = GroupLessonSet.values("group")).order_by('group__group_number', 'surname', 'name')
+class Lessons(View):
+    def get(self, request, building, auditorium, date, index):
+        LessonObj = self.__getLessons(building, auditorium, date, index)
+        GroupLessonSet = Group_Lesson.objects.filter(lesson_id = LessonObj.id)
+        StudentObjList = Student.objects.filter(group__in = GroupLessonSet.values("group")).order_by('group__group_number', 'surname', 'name')
 
-    students = []
-    for st in StudentObjList:
-        attendance = mu.get_if_exists(Attendance, student = st, lesson = LessonObj)
-        status = "Не был"
-        if attendance is not None:
-            status = "Был"
-        students.append({"fullname" : mu.getFullName(st),
-                         "url_student" : f"/faculties/{st.group.faculty.latin_name}/groups/{st.group.group_number}/students/{st.id}",
-                         "url_group" : f"/faculties/{st.group.faculty.latin_name}/groups/{st.group.group_number}",
-                         "group" : st.group.group_number,
-                         "status" : status})
+        students = []
+        for st in StudentObjList:
+            attendance = mu.get_if_exists(Attendance, student = st, lesson = LessonObj)
+            status = "Не был"
+            # status = "Не был (ув. прич.)"
+            id_att = -1
+            if attendance is not None:
+                status = attendance.status
+                id_att = attendance.id
+            students.append({"fullname" : mu.getFullName(st),
+                            "url_student" : f"/faculties/{st.group.faculty.latin_name}/groups/{st.group.group_number}/students/{st.id}",
+                            "url_group" : f"/faculties/{st.group.faculty.latin_name}/groups/{st.group.group_number}",
+                            "group" : st.group.group_number,
+                            "id" : st.id,
+                            "id_att" : id_att,
+                            "status" : status})
 
-    lesson = {"name" : LessonObj.lesson_name,
-              "professor" : mu.getFullName(LessonObj.professor),
-              "aud" : LessonObj.auditorium.aud_number,
-              "build" : LessonObj.auditorium.building.build_name,
-              "date" : LessonObj.date}
+        lesson = {"name" : LessonObj.lesson_name,
+                "professor" : mu.getFullName(LessonObj.professor),
+                "aud" : LessonObj.auditorium.aud_number,
+                "build" : LessonObj.auditorium.building.build_name,
+                "date" : LessonObj.date}
 
-    return render(request, 'website/lesson.html', context = {"students" : students,
-                                                             "lesson" : lesson})
+
+
+        return render(request, 'website/lesson.html', context = {"students" : students,
+                                                                 "lesson" : lesson,
+                                                                 "allowed_edit" : self.__checkIsAllowedEdit(request.user) })
  
+    def post(self, request, building, auditorium, date, index):
+        try:
+            if not self.__checkIsAllowedEdit(request.user):
+                return HttpResponseForbidden('Недостаточно прав')
+
+            less = self.__getLessons(building, auditorium, date, index)
+
+            data = json.loads(request.POST['data'])
+            for obj in data:
+                stud = Student.objects.get(id=obj['student'])
+                status = self.__resolveAttenctionStatus(obj['status'])
+
+                if obj['attendance'] != -1:
+                    att = Attendance.objects.get(id=obj['attendance'])
+
+                    if att.student != stud:
+                        Exception('Id студента и студент в раписи посещяемости не совпадает')
+
+                    att.status = status
+                    att.save()
+                else:
+                    Attendance(student=stud, lesson=less, status=status).save()
+
+            return HttpResponse('Успешно')
+        except Exception:
+            print_exc()
+            return HttpResponseBadRequest('Некорректные данные')
+
+    def __checkIsAllowedEdit(self, user):
+        return user.is_authenticated and (mu.isAccauntInProfessorsGroup(user) or mu.isAccauntInDeaneryGroup(user))
+
+    def __resolveAttenctionStatus(self, status):
+        if status == "1":
+            return "Был"
+        elif status == "2":
+            return "Не был"
+        elif status == "3":
+            return "Не был (ув. прич.)"
+        else:
+            raise Exception('Не поддерживаемый статус: ' + str(status))
+
+    def __getLessons(self, building, auditorium, date, index):
+        BuildObj = Building.objects.get(latin_name = building)
+        AuditoriumObj = Auditorium.objects.get(building_id = BuildObj.id, aud_number = auditorium)
+        LessonObj = Lesson.objects.get(lesson_number = index, auditorium_id = AuditoriumObj.id, date = date)
+        return LessonObj
+
 
 def professors_lessons(request):
     ProfessorObj = request.user.professor

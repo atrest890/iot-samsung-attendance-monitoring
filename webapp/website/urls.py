@@ -30,7 +30,7 @@ urlpatterns = [
     path('faculties/<str:faculty>/groups/<str:group>', views.groups),
     path('faculties/<str:faculty>/groups/<str:group>/students/<str:student_id>', views.students),
     path('buildings/<str:building>', views.buildings),
-    path('buildings/<str:building>/auditoriums/<str:auditorium>/date/<str:date>/index/<int:index>', views.lessons),
+    path('buildings/<str:building>/auditoriums/<str:auditorium>/date/<str:date>/index/<int:index>', views.Lessons.as_view()),
     
     path('login', views.Login.as_view()),
     path('logout', views.logout),
