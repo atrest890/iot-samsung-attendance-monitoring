@@ -66,7 +66,7 @@ function processEditing(selects, totalStatus) {
         status = totalStatus || el.val()
 
         editing.push({
-            'student': parseInt(el.attr('name')),
+            'id_some': parseInt(el.attr('name')),
             'attendance' : parseInt(el.attr('id')),
             'status' : status
         });
@@ -78,11 +78,11 @@ function processEditing(selects, totalStatus) {
             data: JSON.stringify(editing),
             csrfmiddlewaretoken: getCookie('csrftoken')
         },
+        async: false,
         success: function(data, status) {
 
             alertTriggeret(data, 'success');
-            // TODO: фактически костыль, ибо можно изменять селект
-            location.reload();
+
         },
         error : function(jqXHR, status) {
 
@@ -94,7 +94,22 @@ function processEditing(selects, totalStatus) {
 }
 
 function groupEdit(idx) {
-    processEditing($('.group-edit:checked'), idx);
+    // var getSelect = function(checkbox) {
+    //     // :(
+    //     return checkbox.parentNode.parentNode.previousSibling.previousSibling.childNodes[1];
+    // }
+
+    checkbox = $('.group-edit:checked');
+    processEditing(checkbox, idx);
+
+    // TODO: фактически костыль, ибо можно изменять селект
+    location.reload();
+    
+
+    // for (let i = 0; i < checkbox.length; i++) {
+    //     var select = getSelect(checkbox[i]);
+        
+    // }
 }
 
 function selectAll() {

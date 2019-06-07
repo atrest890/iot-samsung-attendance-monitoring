@@ -116,43 +116,83 @@ def groups(request, faculty, group):
                                                             "group" : group_number})
 
 
+class Students(View):
+    def get(self, request, faculty, group, student_id):
+        StudentObj = Student.objects.get(id = student_id)
+        fullname_and_group = mu.getFullNameAndGroup(StudentObj)
 
-def students(request, faculty, group, student_id):
-    StudentObj = Student.objects.get(id = student_id)
-    fullname_and_group = mu.getFullNameAndGroup(StudentObj)
+        date_range = getdateFromDatepick(request)
 
-    date_range = getdateFromDatepick(request)
+        GroupObj = Group.objects.get(group_number = group)
+        GroupLessonObjList = Group_Lesson.objects.filter(group = GroupObj)
+        LessonObjList = Lesson.objects.filter(id__in = GroupLessonObjList.values("lesson"), date__range = date_range).order_by('date', 'lesson_number')
+        attendance = Attendance.objects.filter(student = student_id)
+    
+        lessons = []
+        for less in LessonObjList:
+            status = "Не был"
+            id_att = -1
+            att = attendance.filter(lesson=less, student=StudentObj)
+            if len(att) == 1:
+                status = att[0].status
+                id_att = att[0].id
+            elif len(att) > 1:
+                raise Exception('Ошибка реализации, несколько записей посещаемости')
 
-    GroupObj = Group.objects.get(group_number = group)
-    GroupLessonObjList = Group_Lesson.objects.filter(group = GroupObj)
-    LessonObjList = Lesson.objects.filter(id__in = GroupLessonObjList.values("lesson"), date__range = date_range).order_by('date', 'lesson_number')
-    # attendance = Attendance.objects.filter(student = student_id).values_list("lesson", flat = True)
-    attendance = Attendance.objects.filter(student = student_id)
- 
-    lessons = []
-    for less in LessonObjList:
-        status = "Не был"
-        att = attendance.filter(lesson=less)
-        if len(att) == 1:
-            status = att[0].status
-        elif len(att) > 1:
-            raise Exception('Ошибка реализации, несколько записей посещаемости')
-
-        lessons.append({"date" : less.date,
-                        "name" : less.lesson_name,
-                        "aud" : less.auditorium.aud_number,
-                        "build" : less.auditorium.building.build_name,
-                        "status" : status,
-                        "lesson_url" : f"/buildings/{less.auditorium.building.latin_name}/auditoriums/{less.auditorium.aud_number}/date/{less.date}/index/{less.lesson_number}"})
-
-    urls = {"week" : f"{student_id}?week",
-            "month" : f"{student_id}?month",
-            "year" : f"{student_id}?year"}
+            lessons.append({"date" : less.date,
+                            "name" : less.lesson_name,
+                            "aud" : less.auditorium.aud_number,
+                            "build" : less.auditorium.building.build_name,
+                            "status" : status,
+                            "id" : less.id,
+                            "id_att" : id_att,
+                            "lesson_url" : f"/buildings/{less.auditorium.building.latin_name}/auditoriums/{less.auditorium.aud_number}/date/{less.date}/index/{less.lesson_number}"})
 
 
-    return render(request, 'website/student.html', context = {"lessons" : lessons, 
-                                                              "fullname_and_group" : fullname_and_group,
-                                                              "urls" : urls})
+        return render(request, 'website/student.html', context = {"lessons" : lessons, 
+                                                                  "fullname_and_group" : fullname_and_group,
+                                                                  "allowed_edit" : self.__checkIsAllowedEdit(request.user)})
+
+    def post(self, request, faculty, group, student_id):
+        try:
+            if not self.__checkIsAllowedEdit(request.user):
+                return HttpResponseForbidden('Недостаточно прав')
+
+            stud = Student.objects.get(id=student_id)
+
+            data = json.loads(request.POST['data'])
+            for obj in data:
+                less = Lesson.objects.get(id=obj['id_some'])
+                status = self.__resolveAttenctionStatus(obj['status'])
+
+                if obj['attendance'] != -1:
+                    att = Attendance.objects.get(id=obj['attendance'])
+
+                    if att.lesson != less:
+                        Exception('Id пары и пара в записи посещяемости не совпадает')
+
+                    att.status = status
+                    att.save()
+                else:
+                    Attendance(student=stud, lesson=less, status=status).save()
+
+            return HttpResponse('Успешно')
+        except Exception:
+            print_exc()
+            return HttpResponseBadRequest('Некорректные данные')
+
+    def __checkIsAllowedEdit(self, user):
+        return user.is_authenticated and (mu.isAccauntInProfessorsGroup(user) or mu.isAccauntInDeaneryGroup(user))
+
+    def __resolveAttenctionStatus(self, status):
+        if status == "1":
+            return "Был"
+        elif status == "2":
+            return "Не был"
+        elif status == "3":
+            return "Не был (ув. прич.)"
+        else:
+            raise Exception('Не поддерживаемый статус: ' + str(status))
 
 
 
@@ -185,6 +225,7 @@ def buildings(request, building):
 
     return render(request, 'website/building.html', context = {"auditoriums" : auditoriums,
                                                                "fullname" : building_name})
+
 
 
 
@@ -232,7 +273,7 @@ class Lessons(View):
 
             data = json.loads(request.POST['data'])
             for obj in data:
-                stud = Student.objects.get(id=obj['student'])
+                stud = Student.objects.get(id=obj['id_some'])
                 status = self.__resolveAttenctionStatus(obj['status'])
 
                 if obj['attendance'] != -1:

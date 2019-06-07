@@ -28,7 +28,8 @@ urlpatterns = [
     path('header.html', views.header, name='website-header'),
     path('faculties/<str:faculty>', views.faculties),
     path('faculties/<str:faculty>/groups/<str:group>', views.groups),
-    path('faculties/<str:faculty>/groups/<str:group>/students/<str:student_id>', views.students),
+    # path('faculties/<str:faculty>/groups/<str:group>/students/<str:student_id>', views.students),
+    path('faculties/<str:faculty>/groups/<str:group>/students/<str:student_id>', views.Students.as_view()),
     path('buildings/<str:building>', views.buildings),
     path('buildings/<str:building>/auditoriums/<str:auditorium>/date/<str:date>/index/<int:index>', views.Lessons.as_view()),
     

@@ -1,114 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title></title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/static/3rd-party/bootstrap-4.3.1.min.css">
-  <link rel=stylesheet href="/static/css/main.css">
+    <title></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/3rd-party/bootstrap-4.3.1.min.css">
+    <link rel=stylesheet href="/static/css/main.css">
 </head>
 <body>
     <div id="header"></div>
     <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Toolbar with button groups" style="margin: 1.5em;">
-      <div class="h2">
-        {{fullname_and_group}} гр.
-      </div>
-      <div class="btn-group" role="group" aria-label="First group">
-        <a class="btn btn-secondary" href="{{urls.week}}" role="button">За неделю</a>
-        <a class="btn btn-secondary" href="{{urls.month}}" role="button">За месяц</a>
-        <a class="btn btn-secondary" href="{{urls.year}}" role="button">За год</a>
-        <a class="btn btn-secondary" href="#" role="button">За период...</a>
-        <input class="form-control form-control-lg" type="date" placeholder="с" style="width: 200px; margin-left: 30px;">
-        <input class="form-control form-control-lg" type="date" placeholder="по" style="width: 200px; margin-left: 30px; margin-right: 30px;">
-        <a class="btn btn-secondary" href="#" role="button">Подтвердить</a>
-      </div>
+        <div class="h2">
+            {{fullname_and_group}} гр.
+        </div>
+        <div class="btn-group" role="group" aria-label="First group">
+            <a class="btn btn-secondary" href="?week" role="button">За неделю</a>
+            <a class="btn btn-secondary" href="?month" role="button">За месяц</a>
+            <a class="btn btn-secondary" href="?year" role="button">За год</a>
+            <a class="btn btn-secondary" href="#" role="button">За период...</a>
+            <input class="form-control form-control-lg" type="date" placeholder="с" style="width: 200px; margin-left: 30px;">
+            <input class="form-control form-control-lg" type="date" placeholder="по" style="width: 200px; margin-left: 30px; margin-right: 30px;">
+            <a class="btn btn-secondary" href="#" role="button">Подтвердить</a>
+        </div>
     </div>
 
     <table class = "table table-bordered">
-      <thead>
-      <thead class="thead-dark">
-         <tr>
-         <th scope="col">Дата</th>
-         <th scope="col">Предмет</th>
-         <th scope="col">№ номер кабинета</th>
-         <th scope="col">Корпус</th>
-         <th scope="col">Присутствие</th>
-         </tr>
-        </div>
-        </thead>
-        
-      <tbody>
-           <!-- <tr> -->
-              <!-- <td scope="row">10.05.2019</td>
-              <td>БСБД</td>
-              <td>808</td>
-              <td>УЛК</td>
-              <td>
-                     <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
-                           <option selected>Выберите...</option>
-                           <option selected>Был</option>
-                           <option value="1">Не был</option>
-                           <option value="2">Не был (ув. пр.)</option>
-                     </select>
-                </td>
-           </tr> -->
-<!-- 
-           {% if user.is_authenticated %}
-
-            <table class = "table table-bordered">
-              <thead>
-              <thead class="thead-dark">
-                <tr>
+        <thead class="thead-dark">
+            <tr>
                 <th scope="col">Дата</th>
                 <th scope="col">Предмет</th>
                 <th scope="col">№ номер кабинета</th>
                 <th scope="col">Корпус</th>
                 <th scope="col">Присутствие</th>
-                </tr>
-                </div>
-                </thead>
-                
-              <tbody>
-
-            <tr>
-                <td scope="row">{{l.date}}</td>
-                <td><a href="{{l.lesson_url}}">{{l.name}}</a></td>
-                <td>{{l.aud}}</td>
-                <td>{{l.build}}</td>
-                {% if l.status == "Был" %}
-                  <td style="background: #1DFE3F;">{{l.status}}</td>
-                {% elif l.status == "Не был" %}
-                  <td style="background: #FE6264;">{{l.status}}</td>
-                {% else %}
-                  <td style="background: #F5FE62;">{{l.status}}</td>
+                {% if allowed_edit == True %}
+                    <th scope="col switch-col dropdown">
+                        <div class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Выбрать действие
+                        </div>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <h6 class="dropdown-header">Изменить данные</h6>
+                            <a class="dropdown-item" type="button" href="#" onclick="groupEdit('1')">Выбранные были</a>
+                            <a class="dropdown-item" type="button" href="#" onclick="groupEdit('2')">Выбранные не были</a>
+                            <a class="dropdown-item" type="button" href="#" onclick="groupEdit('3')">Выбранные не были (по ув. прич.)</a>
+                            <h6 class="dropdown-header">Опции выбора</h6>
+                            <a class="dropdown-item" type="button" href="#" onclick="selectAll()">Выбрать всё</a>
+                            <a class="dropdown-item" type="button" href="#" onclick="deselectAll()">Забыть выбранное</a>
+                        </div>
+                    </th>
                 {% endif %}
             </tr>
-           {% endif %} -->
-           
-
-           {% for l in lessons %}
-               <tr>
-                  <td scope="row">{{l.date}}</td>
-                  <td><a href="{{l.lesson_url}}">{{l.name}}</a></td>
-                  <td>{{l.aud}}</td>
-                  <td>{{l.build}}</td>
-                  {% if l.status == "Был" %}
-                    <td style="background: #1DFE3F;">{{l.status}}</td>
-                  {% elif l.status == "Не был" %}
-                    <td style="background: #FE6264;">{{l.status}}</td>
-                  {% else %}
-                    <td style="background: #F5FE62;">{{l.status}}</td>
-                  {% endif %}
-              </tr>
-          {% endfor %}
-
-      </tbody>
+          </div>
+        </thead>
+        <tbody>          
+            {% for less in lessons %}
+                <tr>
+                    <td scope="row">{{less.date}}</td>
+                    <td><a href="{{less.lesson_url}}">{{less.name}}</a></td>
+                    <td>{{less.aud}}</td>
+                    <td>{{less.build}}</td>
+                    <!-- {% if less.status == "Был" %}
+                        <td style="background: #1DFE3F;">{{less.status}}</td>
+                    {% elif less.status == "Не был" %}
+                        <td style="background: #FE6264;">{{less.status}}</td>
+                    {% else %}
+                        <td style="background: #F5FE62;">{{less.status}}</td>
+                    {% endif %} -->
+                    {% if allowed_edit == True %}
+                        <td class="color-attendance">
+                            <select class="custom-select select-disable-border" name={{less.id}} id={{less.id_att}} autocomplete="off">
+                                <option value="1" {% if less.status == "Был" %} selected {% endif %}>Был</option>
+                                <option value="2" {% if less.status == "Не был" %} selected {% endif %}>Не был</option>
+                                <option value="3" {% if less.status == "Не был (ув. прич.)" %} selected {% endif %}>Не был (ув. прич.)</option>
+                            </select>
+                        </td>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox" class="default group-edit" name={{less.id}} id={{less.id_att}} autocomplete="off">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                        {% else %}
+                        {% if less.status == "Был" %}
+                            <td class="color-attendance-1">
+                        {% elif less.status == "Не был" %}
+                            <td class="color-attendance-2">
+                        {% else %}
+                            <td class="color-attendance-3">
+                        {% endif %}
+                                {{less.status}}</td>
+                        {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
      </table>
+
+     <div id="alert_placeholder"></div>
 
     <script src="/static/3rd-party/jquery-3.4.0.min.js"></script>
     <script src="/static/3rd-party/popper-1.14.7.min.js"></script>
     <script src="/static/3rd-party/bootstrap-4.3.1.min.js"></script>
-    <script src="/static/js/include-head.js"></script>
 
-  </body>
+    <script src="/static/js/alert.js"></script>
+    <script src="/static/js/include-head.js"></script>
+    <script src="/static/js/editing.js"></script>
+</body>
 </html>
