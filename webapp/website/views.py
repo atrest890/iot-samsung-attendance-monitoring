@@ -17,6 +17,7 @@ def index(request):
 
 def header(request):
     FacultyObjList = Faculty.objects.all()
+    user = request.user
 
     faculties = {}
     for obj in FacultyObjList:
@@ -35,7 +36,12 @@ def header(request):
 
     acc = {'fullname': '', 'profile_url' : '#' }
     if request.user.is_authenticated:
-        acc['fullname'] = mu.getAccauntName(request.user)
+        acc['fullname'] = mu.getAccauntName(user)
+
+        if mu.isAccauntInProfessorsGroup(user):
+            acc['profile_url'] = '/professor'
+        if mu.isAccauntInDeaneryGroup(request.user):
+            acc['profile_url'] = '/dean'
 
     return render(request, 'website/header.html', context = {"faculties" : faculties, 
                                                              "buildings" : buildings,
@@ -129,7 +135,8 @@ def students(request, faculty, group, student_id):
                         "name" : l.lesson_name,
                         "aud" : l.auditorium.aud_number,
                         "build" : l.auditorium.building.build_name,
-                        "status" : status})
+                        "status" : status,
+                        "lesson_url" : f"/buildings/{l.auditorium.building.latin_name}/auditoriums/{l.auditorium.aud_number}/date/{l.date}/index/{l.lesson_number}"})
 
     urls = {"week" : f"{student_id}?week",
             "month" : f"{student_id}?month",
@@ -203,6 +210,62 @@ def lessons(request, building, auditorium, date, index):
     return render(request, 'website/lesson.html', context = {"students" : students,
                                                              "lesson" : lesson})
  
+
+def professors_lessons(request):
+    ProfessorObj = request.user.professor
+
+    today = date.today()
+    if 'month' in request.GET:
+        month = today.month
+        year = today.year
+        start_date = datetime(year, month, 1)
+        end_date = today
+
+    elif 'year' in request.GET:
+        year = today.year
+        if datetime.today().month < 9:
+            year -= 1
+        start_date = datetime(year, 9, 1)
+        end_date = today
+
+    else:
+        iso = datetime.today().isocalendar()
+        start_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-1', '%Y-%W-%w')
+        end_date = today
+
+    LessonObjList = Lesson.objects.filter(professor = ProfessorObj.id, date__range=(start_date, end_date))
+    
+    lessons = []
+    for less in LessonObjList:  
+        lessons.append({"name" : less.lesson_name,
+                        "date" : less.date,
+                        "build" : less.auditorium.building.build_name,
+                        "aud" : less.auditorium.aud_number,
+                        "url" : f"/buildings/{less.auditorium.building.latin_name}/auditoriums/{less.auditorium.aud_number}/date/{less.date}/index/{less.lesson_number}"})
+
+    urls = {"week" : "professor?week",
+        "month" : "professor?month",
+        "year" : "professor?year",
+        "period" : "#"}
+
+
+    return render(request, 'website/professor_lessons.html', context={"lessons" : lessons,
+                                                                      "urls" : urls})
+        
+
+def dean(request):
+    DeanObj = request.user.deanery
+    # LessonObjList = Lesson.objects.filter(professor_id = ProfessorObj.id)
+    
+    lessons = []
+    for less in LessonObjList:  
+        lessons.append({"name" : less.lesson_name,
+                        "date" : less.date,
+                        "build" : less.building_id.build_name,
+                        "aud" : less.auditoium_id.aud_number})
+
+    return render(request, 'website/dean.html', context={"lessons" : lessons})
+
 
 class Login(View):
     def get(self, request):

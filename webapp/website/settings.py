@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'website',
     'datagate.apps.DatagateConfig',
-    'integration'
+    'integration',
+    'chartjs'
 ]
 
 MIDDLEWARE = [
