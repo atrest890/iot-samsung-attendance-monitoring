@@ -161,21 +161,15 @@ class Students(View):
 
             stud = Student.objects.get(id=student_id)
 
+            # TODO: при создании новой посещаемости на фронт не передаётся id, а нужно ли это?
             data = json.loads(request.POST['data'])
             for obj in data:
                 less = Lesson.objects.get(id=obj['id_some'])
                 status = self.__resolveAttenctionStatus(obj['status'])
 
-                if obj['attendance'] != -1:
-                    att = Attendance.objects.get(id=obj['attendance'])
-
-                    if att.lesson != less:
-                        Exception('Id пары и пара в записи посещяемости не совпадает')
-
-                    att.status = status
-                    att.save()
-                else:
-                    Attendance(student=stud, lesson=less, status=status).save()
+                att, cr = Attendance.objects.get_or_create(student=stud, lesson=less)
+                att.status = status
+                att.save()
 
             return HttpResponse('Успешно')
         except Exception:
@@ -277,16 +271,10 @@ class Lessons(View):
                 stud = Student.objects.get(id=obj['id_some'])
                 status = self.__resolveAttenctionStatus(obj['status'])
 
-                if obj['attendance'] != -1:
-                    att = Attendance.objects.get(id=obj['attendance'])
-
-                    if att.student != stud:
-                        Exception('Id студента и студент в раписи посещяемости не совпадает')
-
-                    att.status = status
-                    att.save()
-                else:
-                    Attendance(student=stud, lesson=less, status=status).save()
+                # TODO: при создании новой посещаемости на фронт не передаётся id, а нужно ли это?
+                att, cr = Attendance.objects.get_or_create(student=stud, lesson=less)
+                att.status = status
+                att.save()
 
             return HttpResponse('Успешно')
         except Exception:
