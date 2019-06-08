@@ -10,7 +10,7 @@ import cyrtranslit
 import json
 from datetime import datetime, date, timedelta
 from traceback import print_exc
-
+from calendar import monthrange
 
 
 def getdateFromDatepick(req) -> tuple:
@@ -20,19 +20,20 @@ def getdateFromDatepick(req) -> tuple:
         month = today.month
         year = today.year
         start_date = datetime(year, month, 1)
-        end_date = today
+        end_date = datetime(year, month, monthrange(year, month)[1])
 
     elif 'year' in req.GET:
         year = today.year
+        year_start = year
         if datetime.today().month < 9:
-            year -= 1
-        start_date = datetime(year, 9, 1)
-        end_date = today
+            year_start -= 1
+        start_date = datetime(year_start, 9, 1)
+        end_date = datetime(year, 6, 9)
 
     else:
         iso = datetime.today().isocalendar()
         start_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-1', '%Y-%W-%w')
-        end_date = today
+        end_date = datetime.strptime(f'{iso[0]}-{iso[1]-1}-0', '%Y-%W-%w')
 
     return start_date, end_date
 
@@ -308,7 +309,7 @@ class Lessons(View):
     def __getLessons(self, building, auditorium, date, index):
         BuildObj = Building.objects.get(latin_name = building)
         AuditoriumObj = Auditorium.objects.get(building_id = BuildObj.id, aud_number = auditorium)
-        LessonObj = Lesson.objects.get(lesson_number = index, auditorium_id = AuditoriumObj.id, date = date)
+        LessonObj = Lesson.objects.get(lesson_number = index, auditorium = AuditoriumObj, date = date)
         return LessonObj
 
 
