@@ -39,7 +39,7 @@ urlpatterns = [
     path('professor', views.professors_lessons),
     path('dean', views.Dean.as_view()),
 
-    path('dategate', datagate.views.lowlevel),
+    path('dategate', datagate.views.datagate.as_view()),
 
     path('integration', integration.views.integrationPreview),
     path('run_integration', integration.views.Integration.as_view()),

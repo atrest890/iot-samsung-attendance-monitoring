@@ -59,13 +59,13 @@ class Protocol_0_1(ProtocolBase):
     VERSION = "0.1"
 
     # command
-    NFCs_PROCESS = "nfs_process"
+    NFCS_PROCESS = "nfs_process"
     DATE_REQUEST = "date_request"
     DATE_RESPONSE = "date_response"
 
     def __init__(self):
         super().__init__()
-        self._deserHanglers[self.NFCs_PROCESS] = self.deserializeNFC
+        self._deserHanglers[self.NFCS_PROCESS] = self.deserializeNFC
         self._deserHanglers[self.DATE_REQUEST] = self.deserializeStub
         self._deserHanglers[self.DATE_RESPONSE] = self.deserializeDateResponse
 
@@ -104,7 +104,7 @@ class Protocol_0_1(ProtocolBase):
 
             dataList.append( (nfs, date) )
 
-        return self._serialize(self.NFCs_PROCESS, id=idDevice, data=dataList)
+        return self._serialize(self.NFCS_PROCESS, id=idDevice, data=dataList)
 
     def deserializeNFC(self, obj: dict) -> Tuple[str, List[Tuple[bytes, datetime.datetime]]]:
         """

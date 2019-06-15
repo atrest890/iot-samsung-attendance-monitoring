@@ -1,43 +1,66 @@
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.views.decorators.csrf import csrf_exempt
 
+from django.views import View
+
 from website.models import Student, Attendance, Lesson
 from datagate.models import Device
 
 import datetime
-import json
 
-from datagate.utils import datetimeToIndexLesson, parseCheckins
-from datagate.model_utils import logging
+from datagate.utils import datetimeToIndexLesson
 
-@csrf_exempt
-def lowlevel(request):
-    try:
-        if request.method == 'GET':
-            dt = datetime.datetime.now()
-            return HttpResponse(str(dt.timestamp()).encode())
+from traceback import print_exc
 
-        if request.method != 'POST':
-            return HttpResponseNotAllowed(["GET", "POST"])
-        
-        device, rowCheckins = json.loads(request.body.decode())
-        checkins = parseCheckins(rowCheckins)
+import datagate.protocol as protocol
 
-        logging(device, checkins)
-        
-        deviceObj = Device.objects.get(identifier = device)
+class datagate(View):
+    def __init__(self):
+        super().__init__()
+        ver = protocol.Protocol_0_1.VERSION
+        self._protocol: protocol.Protocol_0_1 = protocol.manager[ver]
 
-        for nfs, date in checkins:
-            print(f"nfs: {nfs}, date: {date}")
+    @csrf_exempt
+    def get(self, request):
+        now = datetime.datetime.now()
+        body = self._protocol.serializeDateResponce(now)
+        return HttpResponse(body)
 
-            lessonObj = Lesson.objects.get(auditorium = deviceObj.auditorium, lesson_number = datetimeToIndexLesson(date))
-            studentObj = Student.objects.get(identifier=nfs)
+    @csrf_exempt
+    def post(self, request):
+        try:
+            
+            cmd, obj = self._protocol.deserialize(request.body.decode())
+            print('lowlevel cmd:', cmd)
 
-            # TODO: разобраться с дублирующимися чекинами
-            Attendance.objects.create(student = studentObj, lesson = lessonObj).save()
+            if cmd != self._protocol.NFCS_PROCESS:
+                return HttpResponse(status=400)
 
-        return HttpResponse(status=200)
-    except Exception as e:
-        print("lowlevel error!")
-        print(e)
-        return HttpResponse(status=500)
+            device, checkins = obj
+            deviceObj = Device.objects.get(identifier=device)
+
+            for nfs, date in checkins:
+                nfs = nfs.decode()
+                print(f"nfs: {nfs}, date: {date}")
+                Log.objects.create(identifier_devices=device, identifier_card=nfs, date=date).save()
+
+                try:
+                    lessonObj = Lesson.objects.get(auditorium=deviceObj.auditorium, date=date, lesson_number=datetimeToIndexLesson(date))
+                except Lesson.DoesNotExist:
+                    print('Lessons not found')
+                    continue
+
+                try:
+                    studentObj = Student.objects.get(identifier=nfs)
+                except Student.DoesNotExist:
+                    print('Student not found')
+                    continue
+
+                att, cr = Attendance.objects.get_or_create(student = studentObj, lesson = lessonObj)
+                print(att, "created" if cr else "existed", att.status)
+
+            return HttpResponse(status=200)
+        except Exception:
+            print("lowlevel error!")
+            print_exc() 
+            return HttpResponse(status=500)

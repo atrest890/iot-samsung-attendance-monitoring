@@ -26,9 +26,5 @@ def datetimeToIndexLesson(date: datetime.datetime):
     for idx, (begin, end) in enumerate(timeTuple, start=1):
         if begin <= date <= end:
             return idx
-
-def parseCheckins(checkins):
-    res = []
-    for card, timestamp in checkins:
-        res.append((card, datetime.datetime.fromtimestamp(timestamp)))
-    return res
+    print("not found date, get default")
+    return 0
